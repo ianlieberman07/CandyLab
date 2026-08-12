@@ -190,6 +190,44 @@ construction; they were not spot-checked by hand in a browser.
 
 ---
 
+## Which papers can be reused, and what that yielded
+
+Every open-access paper was checked against the **PMC Open Access Subset**. This
+is the distinction that matters and it is easy to get wrong: a paper can be free
+to *read* in PubMed Central under the NIH public access policy and still not be
+licensed for *reuse*. OpenAlex's licence field reported one CC BY paper; PMC
+reports forty in the OA subset.
+
+| Licence | Papers | What may be done |
+|---|---|---|
+| CC BY | 18 | Reproduce and crop, with attribution |
+| CC BY-NC | 6 | Same, non-commercially — a university lab site qualifies |
+| CC BY-NC-ND | 15 | Reproduce whole only. **Not croppable** |
+| none stated | 1 | Treat as all rights reserved |
+| Not in the OA subset | 37 | Free to read, **not** licensed for reuse |
+
+The 15 ND papers are deliberately excluded from reuse here. Cropping a figure
+into a page banner is a derivative work, which "NoDerivatives" does not permit.
+
+**What the 24 usable papers actually contain:** box plots, scatter plots, path
+diagrams, CONSORT flow charts and results tables. Exactly one figure works as
+cover imagery — the default mode and salience network maps from Ho et al. 2021
+(*Translational Psychiatry*, CC BY), now a full-width band on the Publications
+page with a visible credit.
+
+This is recorded so nobody repeats the search expecting a different answer.
+**Her published figures are not a source of cover imagery.** They are figures.
+
+### Note for anyone re-running this
+
+PMC's figure images could not be retrieved programmatically: `/bin/` hotlinks
+return HTML, the FTP `oa_package` tree was deprecated and removed in 2026, and
+the replacement AWS Open Data bucket (`pmc-oa-opendata`) carries text and XML
+only. The figures here came from the publishers' own pages via the DOI. The
+licence audit in `scripts/`-adjacent scratch work is the reusable part.
+
+---
+
 ## Design and branding
 
 ### 13. Is there a UCLA branding policy that constrains the palette?
