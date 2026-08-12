@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  person: CollectionEntry<'people'>;
+  /** Links through to a full bio page. Off for people with no bio. */
+  href?: string;
+}
+const { person, href } = Astro.props;
+const { name, credential, role, headshot, headshotAlt } = person.data;
+
+// Several people have no photograph, and one of the supplied "photos" was a
+// stock grey avatar. The card is designed to degrade rather than break: a
+// tinted panel carrying the person's initials stands in.
+const initials = name
+  .split(' ')
+  .filter(Boolean)
+  .map((part) => part[0])
+  .slice(0, 2)
+  .join('');
+
+const Wrapper = href ? 'a' : 'div';
+---
+
+<article class="group">
+  <Wrapper
+    href={href}
+    class:list={['block focus-visible:outline-offset-4', href ? 'cursor-pointer' : '']}
+  >
+    {/* `||` not `??` on the alt below: the CMS writes an empty string for a
+        blank optional field, which `??` would happily pass straight through as
+        the alt text.
+
+        This comment sits outside the tag deliberately. A block comment placed
+        between a component's attributes is parsed as attributes — every word
+        ships as a junk boolean attribute and the attribute after it is
+        swallowed. scripts/check-build.mjs fails the build if it recurs. */}
+    <div class="relative aspect-[4/5] overflow-hidden border border-ink/10 bg-paper-sunk">
+      {
+        headshot ? (
+          <Image
+            src={headshot}
+            alt={headshotAlt || `Portrait of ${name}.`}
+            widths={[280, 480, 720]}
+            sizes="(min-width: 1280px) 20vw, (min-width: 768px) 30vw, 45vw"
+            loading="lazy"
+            class="h-full w-full object-cover transition-transform duration-[1100ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div
+            class="flex h-full w-full items-center justify-center bg-gradient-to-br from-paper-sunk to-paper"
+            role="img"
+            aria-label={`No photograph available for ${name}.`}
+          >
+            <span class="font-display text-[2.4rem] text-ink/20">{initials}</span>
+          </div>
+        )
+      }
+    </div>
+
+    <h3 class="mt-5 font-display text-[1.25rem] leading-snug text-ink">
+      {name}{credential && <span class="text-ink-muted">, {credential}</span>}
+    </h3>
+    <p class="mt-1 text-[0.9rem] text-ink-muted">{role}</p>
+  </Wrapper>
+</article>

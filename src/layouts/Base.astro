@@ -1,0 +1,98 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site, PRODUCTION_HOST } from '../config';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Home page overlays the header on a full-bleed first screen. */
+  transparentHeader?: boolean;
+}
+
+const { title, description, transparentHeader = false } = Astro.props;
+
+const pageTitle =
+  title === site.labNameShort
+    ? `${site.labNameShort} — ${site.labName}, UCLA`
+    : `${title} — ${site.labNameShort}, UCLA`;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Anything not served from the final domain is a preview: the temporary
+// pages.dev address, a branch build, a local run. Previews are kept out of
+// search results entirely, so a complete copy of the lab's pages and its
+// students' photographs never gets indexed at a URL that is going to be thrown
+// away. Goes live on its own the moment SITE_URL is set to the real domain.
+const isPreview = Astro.site?.hostname !== PRODUCTION_HOST;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {isPreview && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+
+    {/* No og:image yet. A share card pointing at a file that does not exist is
+        worse than none at all — the scrape fails and some clients cache the
+        failure. Add one at launch (DOCS/QUESTIONS.md) and restore the tags. */}
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#eef1f5" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {/* Cross-document navigation through the View Transition API: the old page
+        is held on screen while the new one is fetched, so moving around the
+        site reads as one continuous document rather than a series of flashes.
+        Curves are set in global.css. */}
+    <ClientRouter />
+
+    <!-- Set before paint so reveal elements never flash in, but only when JS
+         is actually available. Without JS the .reveal rule leaves content
+         visible. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      // The router replaces the <html> element's attributes wholesale on every
+      // navigation, which would drop the class above and leave the next page
+      // un-animated. This restores it in the same frame as the swap.
+      document.addEventListener('astro:after-swap', () =>
+        document.documentElement.classList.add('js')
+      );
+    </script>
+    {/* Drives the dev-only outlining of unapproved placeholder copy. */}
+    {import.meta.env.DEV && <script is:inline>document.documentElement.dataset.env = 'dev';</script>}
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {/* Reading progress. Purely a hint — the same information is in the
+        scrollbar — so it is hidden from assistive technology. */}
+    <div class="scroll-progress" aria-hidden="true"><span></span></div>
+
+    <Header transparent={transparentHeader} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Scroll reveal, header state, reading progress and parallax. All of it
+      // decoration, all of it disabled under prefers-reduced-motion.
+      import '../scripts/enhance';
+    </script>
+  </body>
+</html>

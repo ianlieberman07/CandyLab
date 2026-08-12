@@ -1,0 +1,137 @@
+---
+import { site, nav as fixedNav } from '../config';
+import { getStandalonePages } from '../utils/pages';
+const { contact } = site;
+const year = new Date().getFullYear();
+
+// The footer lists EVERY page, including the ones kept out of the top menu to
+// stop it running to ten items. A page she creates and unticks "Show in the
+// menu" for is still reachable from here rather than becoming an orphan.
+const pages = await getStandalonePages();
+const links = [
+  ...fixedNav,
+  { label: 'Alumni', href: '/people/alumni', order: 41 },
+  ...pages.map((page) => ({
+    label: page.data.navLabel ?? page.data.title,
+    href: `/${page.id}`,
+    order: page.data.navOrder,
+  })),
+].sort((a, b) => a.order - b.order);
+
+// Two columns once the list gets long, so the footer does not become a ladder.
+const half = Math.ceil(links.length / 2);
+const columns = [links.slice(0, half), links.slice(half)];
+
+// The lab's current site publishes no postal address or phone number, and
+// inventing one for a building it may not be in would be worse than leaving it
+// out. Whatever is supplied here is printed; whatever is blank is skipped.
+// See DOCS/QUESTIONS.md.
+const hasPostal = contact.addressLines.length > 0 || Boolean(contact.building);
+---
+
+<footer class="bg-navy text-paper">
+  <div
+    class="mx-auto grid max-w-[104rem] gap-14 px-(--spacing-gutter) py-20 md:grid-cols-[1.5fr_1fr_1fr] md:py-24"
+  >
+    <div>
+      <h2 class="font-display text-title text-paper">{site.labNameShort}</h2>
+      <p class="mt-3 max-w-sm text-[1rem] leading-relaxed text-paper/70">
+        {site.labName}
+      </p>
+      <p class="mt-4 max-w-sm text-[0.95rem] leading-relaxed text-paper/55">
+        Directed by {site.director} · {site.department}, {site.institution}
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-eyebrow font-medium uppercase text-signal-bright">Contact</h3>
+      {
+        hasPostal && (
+          <address class="mt-5 space-y-1 text-[0.95rem] not-italic leading-relaxed text-paper/75">
+            {contact.building && <div>{contact.building}</div>}
+            {contact.addressLines.map((line) => (
+              <div>{line}</div>
+            ))}
+            {contact.mailCode && <div>Mail code {contact.mailCode}</div>}
+          </address>
+        )
+      }
+      <ul class="mt-5 space-y-2 text-[0.95rem] text-paper/75">
+        {
+          contact.email && (
+            <li>
+              <a
+                href={`mailto:${contact.email}`}
+                class="transition-colors duration-300 hover:text-signal-bright"
+              >
+                {contact.email}
+              </a>
+            </li>
+          )
+        }
+        {
+          contact.phone && (
+            <li>
+              <a
+                href={`tel:+1${contact.phone.replace(/\D/g, '')}`}
+                class="transition-colors duration-300 hover:text-signal-bright"
+              >
+                {contact.phone}
+              </a>
+            </li>
+          )
+        }
+        {
+          contact.instagram && (
+            <li>
+              <a
+                href={contact.instagram}
+                rel="noopener"
+                class="transition-colors duration-300 hover:text-signal-bright"
+              >
+                Instagram ↗
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-eyebrow font-medium uppercase text-signal-bright">Explore</h3>
+      <div class="mt-5 grid grid-cols-2 gap-x-6">
+        {
+          columns.map((column) => (
+            <ul class="space-y-2.5">
+              {column.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="text-[0.95rem] text-paper/75 transition-colors duration-300 hover:text-paper"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-paper/12">
+    <div
+      class="mx-auto flex max-w-[104rem] flex-col gap-3 px-(--spacing-gutter) py-7 text-[0.82rem] text-paper/50 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} Regents of the University of California. All rights reserved.</p>
+      <a
+        href="https://www.psych.ucla.edu/"
+        rel="noopener"
+        class="transition-colors duration-300 hover:text-ucla-gold"
+      >
+        UCLA Department of Psychology
+      </a>
+    </div>
+  </div>
+</footer>

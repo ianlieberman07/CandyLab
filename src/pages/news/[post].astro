@@ -1,0 +1,90 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+
+export const getStaticPaths = (async () => {
+  const news = await getCollection('news');
+  return news
+    .filter((n) => !n.data.draft || import.meta.env.DEV)
+    .map((post) => ({ params: { post: post.id }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+// Most announcements here are a headline and a date with no body — that is the
+// whole item, and it is how this lab posts news. The page renders as a
+// headline; nothing is padded out to look fuller than it is.
+const body = post.body?.trim() ?? '';
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+const all = (await getCollection('news'))
+  .filter((n) => !n.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const index = all.findIndex((n) => n.id === post.id);
+const newer = index > 0 ? all[index - 1] : undefined;
+const older = index >= 0 && index < all.length - 1 ? all[index + 1] : undefined;
+---
+
+<Base title={post.data.title} description={body ? body.slice(0, 180) : post.data.title}>
+  <article class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-20 md:py-28">
+    <a href="/news" class="link-rule text-[0.9rem]">← All news</a>
+
+    <div class="mt-10 max-w-(--container-prose)">
+      <time
+        class="reveal meta block text-signal"
+        datetime={post.data.date.toISOString().slice(0, 10)}
+      >
+        {dateFmt.format(post.data.date)}
+      </time>
+      <h1 class="reveal mt-5 font-display text-display text-ink" data-reveal-delay="80">
+        {post.data.title}
+      </h1>
+
+      {
+        body && (
+          <div class="reveal prose-lab mt-10" data-reveal-delay="160">
+            <Content />
+          </div>
+        )
+      }
+    </div>
+  </article>
+
+  <nav class="border-t border-ink/10 bg-paper-raised" aria-label="More news">
+    <div class="mx-auto grid max-w-[104rem] gap-px bg-ink/10 sm:grid-cols-2">
+      {
+        newer ? (
+          <a href={`/news/${newer.id}`} class="index-row bg-paper-raised px-(--spacing-gutter) py-10">
+            <span class="text-eyebrow font-medium uppercase text-ink-muted">Newer</span>
+            <span class="mt-2 block font-display text-[1.15rem] leading-snug text-ink">
+              {newer.data.title}
+            </span>
+          </a>
+        ) : (
+          <span class="bg-paper-raised" />
+        )
+      }
+      {
+        older && (
+          <a
+            href={`/news/${older.id}`}
+            class="index-row bg-paper-raised px-(--spacing-gutter) py-10 sm:text-right"
+          >
+            <span class="text-eyebrow font-medium uppercase text-ink-muted">Older</span>
+            <span class="mt-2 block font-display text-[1.15rem] leading-snug text-ink">
+              {older.data.title}
+            </span>
+          </a>
+        )
+      }
+    </div>
+  </nav>
+</Base>

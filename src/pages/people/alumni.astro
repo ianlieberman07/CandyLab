@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+
+// `listed: false` hides someone without deleting them — the entry stays in the
+// repo, so putting a person back is one checkbox rather than a re-transcription.
+const alumni = (await getCollection('people'))
+  .filter((p) => p.data.status === 'alumni' && p.data.listed)
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+---
+
+<Base
+  title="Alumni"
+  description={`${alumni.length} former members of the CANDY Lab at UCLA, and where they are now.`}
+>
+  <PageHeader
+    eyebrow="People"
+    title="Lab Alumni"
+    lede="Everyone who has worked in the lab, and where they went next."
+  />
+
+  <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+    <ol>
+      {
+        alumni.map((person, i) => (
+          <li
+            class="reveal index-row -mx-4 border-t border-ink/10 px-4 py-6 last:border-b"
+            data-reveal-delay={String(Math.min(i, 10) * 40)}
+          >
+            <div class="flex flex-col gap-x-8 gap-y-1.5 sm:flex-row sm:items-baseline">
+              <span class="meta shrink-0 text-ink-faint sm:w-28">{person.data.years}</span>
+              <span class="flex-1">
+                <span class="font-display text-[1.2rem] text-ink">
+                  {person.data.name}
+                  {person.data.credential && (
+                    <span class="text-ink-muted">, {person.data.credential}</span>
+                  )}
+                </span>
+                {person.data.labRole && (
+                  <span class="mt-0.5 block text-[0.92rem] text-ink-muted">
+                    {person.data.labRole}
+                  </span>
+                )}
+              </span>
+              {/* Only printed when the lab actually recorded where someone went.
+                  A blank here is a blank, never a guess. */}
+              {person.data.role && person.data.role !== person.data.labRole && (
+                <span class="shrink-0 text-[0.92rem] text-ink-dim sm:max-w-[26rem] sm:text-right">
+                  Now {person.data.role}
+                </span>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="mt-10 text-[0.9rem] text-ink-muted">
+      {alumni.length} former lab members.
+    </p>
+  </section>
+</Base>

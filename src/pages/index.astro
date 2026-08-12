@@ -1,0 +1,170 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { site } from '../config';
+import { splitWords } from '../utils/splitWords';
+
+const studies = (await getCollection('research')).sort(
+  (a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title)
+);
+
+const news = (await getCollection('news'))
+  .filter((n) => !n.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+// The lab overview is a page in /content/pages, printed here rather than given
+// a URL of its own — so the copy exists at exactly one address and she edits it
+// in exactly one place.
+const overview = await getEntry('pages', 'lab-overview');
+const { Content: Overview } = overview ? await render(overview) : { Content: null };
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<Base
+  title={site.labNameShort}
+  description={`The ${site.labName} at UCLA, directed by ${site.director}. How adversity and stress shape the adolescent brain, and what that means for depression.`}
+  transparentHeader
+>
+  {/* ── First screen ──────────────────────────────────────────
+      The lab's name AND the director's name are both above the fold, at every
+      width — people arrive having been given a person's name, not an acronym.
+      The contact address is here too, so it is reachable in one action from
+      the landing page.
+
+      Sized with `min-h-svh` rather than `vh`: on a phone, `vh` measures the
+      viewport as if the browser chrome were retracted, which pushes the last
+      line under the address bar on first paint. */}
+  <section
+    class="relative flex min-h-svh flex-col justify-between border-b border-ink/10 bg-paper-raised px-(--spacing-gutter) pb-[clamp(2.5rem,5vh,3.5rem)] pt-[clamp(6rem,14vh,10rem)]"
+  >
+    <div class="mx-auto w-full max-w-[104rem]">
+      <p class="reveal text-eyebrow font-medium uppercase text-signal">
+        {site.department} · {site.institution}
+      </p>
+
+      <h1
+        class="reveal-words mt-8 max-w-[16ch] font-display text-hero text-ink"
+        data-reveal-delay="90"
+        set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
+      />
+
+      <p class="reveal mt-8 max-w-(--container-prose) text-lede text-ink-dim" data-reveal-delay="420">
+        {site.tagline}
+      </p>
+    </div>
+
+    <div class="mx-auto mt-[clamp(2.5rem,6vh,4rem)] w-full max-w-[104rem]">
+      <div class="reveal-rule h-px w-full bg-ink/15" data-reveal-delay="520"></div>
+      <div
+        class="reveal mt-7 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+        data-reveal-delay="600"
+      >
+        <div>
+          <p class="text-eyebrow font-medium uppercase text-ink-muted">Directed by</p>
+          <p class="mt-2 font-display text-title text-ink">{site.director}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.95rem]">
+          <a href={`mailto:${site.contact.email}`} class="link-rule">{site.contact.email}</a>
+          <a href="/participate" class="link-rule">Take part in a study</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── About ───────────────────────────────────────────────── */}
+  {
+    Overview && (
+      <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+        <div class="grid gap-10 lg:grid-cols-[16rem_1fr] lg:gap-20">
+          <h2 class="reveal font-display text-title text-ink lg:sticky lg:top-32 lg:self-start">
+            About the lab
+          </h2>
+          <div class="reveal prose-lab max-w-(--container-prose)" data-reveal-delay="120">
+            <Overview />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {/* ── Studies ─────────────────────────────────────────────── */}
+  <section class="border-y border-ink/10 bg-paper-raised">
+    <div class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+      <div class="flex flex-wrap items-baseline justify-between gap-4">
+        <h2 class="reveal font-display text-title text-ink">Our studies</h2>
+        <a href="/research" class="reveal link-rule text-[0.95rem]" data-reveal-delay="80">
+          All research →
+        </a>
+      </div>
+
+      <ul class="mt-12">
+        {
+          studies.map((study, i) => (
+            <li class="reveal" data-reveal-delay={String(60 + i * 45)}>
+              <a
+                href={`/research/${study.id}`}
+                class="index-row -mx-4 flex flex-col gap-2 border-t border-ink/10 px-4 py-7 transition-colors duration-500 last:border-b sm:flex-row sm:items-baseline sm:gap-8"
+              >
+                <span class="meta shrink-0 text-ink-faint sm:w-10">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="flex-1">
+                  <span class="block font-display text-[1.35rem] leading-snug text-ink">
+                    {study.data.title}
+                    {study.data.status && (
+                      <span class="ml-3 inline-block translate-y-[-0.15em] border border-signal/40 px-2 py-0.5 align-middle text-[0.62rem] font-medium uppercase tracking-[0.12em] text-signal">
+                        {study.data.status}
+                      </span>
+                    )}
+                  </span>
+                  <span class="mt-1.5 block max-w-[60ch] text-[0.95rem] leading-relaxed text-ink-muted">
+                    {study.data.summary}
+                  </span>
+                </span>
+                <span class="shrink-0 text-signal" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* ── News ────────────────────────────────────────────────── */}
+  {
+    news.length > 0 && (
+      <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+        <div class="flex flex-wrap items-baseline justify-between gap-4">
+          <h2 class="reveal font-display text-title text-ink">Lab news</h2>
+          <a href="/news" class="reveal link-rule text-[0.95rem]" data-reveal-delay="80">
+            All news →
+          </a>
+        </div>
+
+        <ul class="mt-10 grid gap-px border border-ink/10 bg-ink/10 md:grid-cols-3">
+          {news.map((item, i) => (
+            <li class="reveal bg-paper-raised p-7" data-reveal-delay={String(60 + i * 70)}>
+              <time class="meta text-ink-faint" datetime={item.data.date.toISOString().slice(0, 10)}>
+                {dateFmt.format(item.data.date)}
+              </time>
+              <h3 class="mt-3 font-display text-[1.15rem] leading-snug text-ink">
+                <a href={`/news/${item.id}`} class="link-rule">
+                  {item.data.title}
+                </a>
+              </h3>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Base>

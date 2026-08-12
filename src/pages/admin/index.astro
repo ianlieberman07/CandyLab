@@ -1,0 +1,58 @@
+---
+// The admin is a real Astro route rather than a file in public/, so that the
+// clean URL /admin/ resolves in dev, in `astro preview`, and on any host —
+// files in public/ are served as assets and get no directory-index handling.
+//
+// The config it reads still lives at public/admin/config.yml.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>CANDY Lab — Edit the website</title>
+    <style>
+      /* Shown only until the CMS bundle takes over the page. If the script is
+         blocked or fails to load, this is what remains — a plain explanation
+         rather than a blank white screen with no clue what went wrong. */
+      #boot {
+        max-width: 34rem;
+        margin: 18vh auto 0;
+        padding: 0 1.5rem;
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          sans-serif;
+        color: #33475c;
+      }
+      #boot h1 {
+        font-size: 1.4rem;
+        color: #0e1c2b;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot">
+      <h1>Loading the editor…</h1>
+      <p>
+        If this message is still here after a few seconds, the editor could not load. It is
+        usually a network or sign-in problem rather than anything you did — reload the page, and
+        if it happens again send this address to whoever maintains the site.
+      </p>
+    </div>
+
+    <!--
+      Sveltia CMS: a drop-in, actively maintained replacement for Decap CMS with
+      a much better editing and media experience. It reads the same config.yml,
+      so switching to Decap later is a one-line change.
+
+      Every save becomes a git commit, which means every edit is revertable and
+      the content never leaves this repository.
+    -->
+    <!-- No `type="module"`: the bundle is a classic script, and marking it as a
+         module makes Sveltia warn that its JavaScript API will misbehave. -->
+    <script is:inline src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+  </body>
+</html>

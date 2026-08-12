@@ -1,0 +1,350 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { emphasize } from '../utils/emphasis';
+
+// Transcribed from the lab's own Publications page, then resolved: every entry
+// was matched against OpenAlex and Crossref for its registered DOI and its true
+// open-access status. Nothing here is a guessed link.
+const papers = (await getCollection('papers')).sort(
+  (a, b) => b.data.year - a.data.year || b.data.id - a.data.id
+);
+
+const years = [...new Set(papers.map((p) => p.data.year))].sort((a, b) => b - a);
+
+// Decade buckets keep the filter bar to a readable width — fifteen individual
+// year buttons would be worse than no filter at all.
+const decades = [...new Set(years.map((y) => Math.floor(y / 10) * 10))].sort((a, b) => b - a);
+
+const total = papers.length;
+const freeCount = papers.filter((p) => p.data.openAccess).length;
+
+const scholar = (title: string) =>
+  `https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`;
+---
+
+<Base
+  title="Publications"
+  description={`${total} publications from the CANDY Lab at UCLA, directed by Tiffany Ho. ${freeCount} are free to read.`}
+>
+  <PageHeader
+    eyebrow="Publications"
+    title="Publications"
+    lede={`${total} papers. ${freeCount} of them can be read in full without a subscription — use the “Free to read” filter to see only those.`}
+  />
+
+  <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) pb-(--spacing-section)">
+    <!-- Controls. Without JS the search and filters are hidden (they would do
+         nothing) and the full list renders as a plain, complete bibliography.
+
+         Sticky beneath the header: this is a 92-entry list, and a filter bar
+         that scrolls away is a filter bar you have to scroll back up to.
+         `--spacing-header` is the header's measured height, published by
+         enhance.ts, so the two edges meet exactly. -->
+    <div
+      id="paper-controls"
+      class="sticky top-(--spacing-header) z-30 hidden -mx-(--spacing-gutter) border-b border-ink/10 bg-paper/90 px-(--spacing-gutter) py-5 backdrop-blur-xl"
+    >
+      <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+        <label class="relative block w-full xl:max-w-sm">
+          <span class="sr-only">Search publications</span>
+          <input
+            type="search"
+            id="paper-search"
+            placeholder="Search title, author, or journal…"
+            autocomplete="off"
+            class="w-full border-b border-ink/25 bg-transparent py-2.5 pr-9 text-[1rem] text-ink placeholder:text-ink-faint focus:border-signal focus:outline-none"
+          />
+          <svg
+            class="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-ink-muted"
+            width="17"
+            height="17"
+            viewBox="0 0 17 17"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle cx="7" cy="7" r="5.4" stroke="currentColor" stroke-width="1.3"></circle>
+            <path d="M11 11l4.5 4.5" stroke="currentColor" stroke-width="1.3"></path>
+          </svg>
+        </label>
+
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <span class="text-eyebrow font-medium uppercase text-signal">Period</span>
+          <button type="button" data-decade="all" class="filter-chip is-active" aria-pressed="true">
+            All
+          </button>
+          {
+            decades.map((d) => (
+              <button type="button" data-decade={String(d)} class="filter-chip" aria-pressed="false">
+                {d}s
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <span class="text-eyebrow font-medium uppercase text-signal">Access</span>
+          <button type="button" id="free-toggle" class="filter-chip" aria-pressed="false">
+            Free to read ({freeCount})
+          </button>
+        </div>
+      </div>
+
+      <p id="paper-count" class="mt-4 text-[0.85rem] text-ink-muted" aria-live="polite">
+        Showing all {total} publications
+      </p>
+    </div>
+
+    <ol id="paper-list" class="mt-2">
+      {
+        papers.map((paper) => {
+          const d = paper.data;
+          // The publisher's page is only ever labelled "free" when the paper is
+          // genuinely open access AND there is no separate free copy to point
+          // at. A paywalled page is never dressed up as a free one.
+          const publisherIsFree = d.openAccess && !d.free;
+          return (
+            <li
+              class="paper-item -mx-4 border-b border-ink/10 px-4 py-7"
+              data-decade={String(Math.floor(d.year / 10) * 10)}
+              data-free={d.openAccess ? 'yes' : 'no'}
+              data-search={`${d.title} ${d.authors.replace(/\*/g, '')} ${d.journal}`.toLowerCase()}
+            >
+              <div class="flex flex-col gap-2 sm:flex-row sm:gap-7">
+                <span class="paper-year meta shrink-0 pt-1 text-ink-muted sm:w-14">{d.year}</span>
+
+                <div class="flex-1">
+                  <h2 class="font-display text-[1.2rem] leading-snug text-ink">{d.title}</h2>
+                  {/* Lab members' names arrive wrapped in asterisks, exactly as
+                      they are bolded on the lab's own page. Preserved rather
+                      than flattened — that emphasis is how the lab shows who
+                      did the work. */}
+                  <p
+                    class="paper-authors mt-2 text-[0.92rem] leading-relaxed text-ink-dim"
+                    set:html={emphasize(d.authors)}
+                  />
+                  {d.journal && (
+                    <p class="mt-1 text-[0.92rem] italic leading-relaxed text-ink-muted">
+                      {d.journal}
+                    </p>
+                  )}
+
+                  <p class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[0.85rem]">
+                    {d.doi && (
+                      <a
+                        href={d.doi}
+                        rel="noopener"
+                        class="text-signal underline-offset-4 hover:text-signal-deep hover:underline"
+                      >
+                        {publisherIsFree ? (
+                          <>
+                            <span class="oa-dot mr-1.5 align-middle" aria-hidden="true" />
+                            Read it free ↗
+                          </>
+                        ) : (
+                          'Publisher ↗'
+                        )}
+                      </a>
+                    )}
+                    {/* Only ever a verified open-access copy at an address that
+                        is not the DOI — never a paywalled publisher PDF. */}
+                    {d.free && (
+                      <a
+                        href={d.free}
+                        rel="noopener"
+                        class="text-signal underline-offset-4 hover:text-signal-deep hover:underline"
+                      >
+                        <span class="oa-dot mr-1.5 align-middle" aria-hidden="true" />
+                        {d.preprintOnly ? 'Free preprint ↗' : 'Read it free ↗'}
+                      </a>
+                    )}
+                    {!d.doi && (
+                      <a
+                        href={scholar(d.title)}
+                        rel="noopener"
+                        target="_blank"
+                        class="text-ink-muted underline-offset-4 hover:text-signal hover:underline"
+                      >
+                        Search for this paper ↗
+                      </a>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    <p id="paper-empty" class="hidden py-16 text-lede text-ink-muted">
+      No publications match that search.
+    </p>
+  </section>
+</Base>
+
+<style>
+  /* The active rule is a pseudo-element scaled on the x axis rather than a
+     colour swap, so selecting a period reads as the underline sliding open
+     under the word. */
+  .filter-chip {
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--color-ink-muted);
+    padding-bottom: 0.3rem;
+    cursor: pointer;
+    transition: color 0.3s var(--ease-out-soft);
+  }
+  .filter-chip::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 1px;
+    background: var(--color-signal);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+  .filter-chip:hover {
+    color: var(--color-ink);
+  }
+  .filter-chip:hover::after {
+    transform: scaleX(1);
+    background: rgb(14 28 43 / 0.25);
+  }
+  .filter-chip.is-active {
+    color: var(--color-ink);
+  }
+  .filter-chip.is-active::after {
+    transform: scaleX(1);
+    background: var(--color-signal);
+  }
+
+  .paper-item {
+    transition: background-color 0.4s var(--ease-out-soft);
+  }
+  .paper-item:hover {
+    background-color: rgb(255 255 255 / 0.55);
+  }
+  .paper-item:hover .paper-year {
+    color: var(--color-ink);
+  }
+  .paper-year {
+    transition: color 0.4s var(--ease-out-soft);
+  }
+  /* Lab members, as the lab marks them on its own page. */
+  .paper-authors :global(em) {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  /* Applied to the leading run of results after a filter changes, so the new
+     set arrives rather than blinking into place. Only the first rows are
+     staggered — nobody sees row 60 animate, and 92 staggered animations would
+     be a long, pointless wait. */
+  html.js .paper-item--enter {
+    animation: paper-in 0.45s var(--ease-out-soft) both;
+    animation-delay: calc(var(--n, 0) * 20ms);
+  }
+  @keyframes paper-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.55rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html.js .paper-item--enter {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // How many of the leading results get the staggered entrance. Beyond this the
+  // rows are off screen anyway, and animating all 92 would mean waiting two
+  // seconds for a filter to finish.
+  const STAGGER_LIMIT = 12;
+
+  function setupPapers() {
+    // Progressive enhancement: the controls are hidden by default in the markup
+    // and only revealed here, so a no-JS visitor gets the complete bibliography
+    // rather than a search box that does nothing.
+    const controls = document.getElementById('paper-controls');
+    const search = document.getElementById('paper-search') as HTMLInputElement | null;
+    const countEl = document.getElementById('paper-count');
+    const emptyEl = document.getElementById('paper-empty');
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.paper-item'));
+    if (!controls || !search || !countEl || !emptyEl || !items.length) return;
+
+    controls.classList.remove('hidden');
+
+    let decade = 'all';
+    let query = '';
+    let freeOnly = false;
+
+    const apply = (animate: boolean) => {
+      let shown = 0;
+      for (const item of items) {
+        const matchesDecade = decade === 'all' || item.dataset.decade === decade;
+        const matchesQuery = !query || (item.dataset.search ?? '').includes(query);
+        const matchesFree = !freeOnly || item.dataset.free === 'yes';
+        const visible = matchesDecade && matchesQuery && matchesFree;
+
+        item.hidden = !visible;
+        item.classList.remove('paper-item--enter');
+        if (visible && animate && shown < STAGGER_LIMIT) {
+          item.style.setProperty('--n', String(shown));
+          // Reading a layout property flushes the class removal above, so the
+          // animation restarts on a filter change instead of being seen as the
+          // same one still running.
+          void item.offsetWidth;
+          item.classList.add('paper-item--enter');
+        }
+        if (visible) shown++;
+      }
+
+      emptyEl.classList.toggle('hidden', shown > 0);
+      countEl.textContent =
+        shown === items.length
+          ? `Showing all ${items.length} publications`
+          : `Showing ${shown} of ${items.length} publications`;
+    };
+
+    let timer: number;
+    search.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        query = search.value.trim().toLowerCase();
+        // No stagger while typing: re-running it on every keystroke turns the
+        // list into a strobe.
+        apply(false);
+      }, 120);
+    });
+
+    const freeBtn = document.getElementById('free-toggle');
+    freeBtn?.addEventListener('click', () => {
+      freeOnly = !freeOnly;
+      freeBtn.classList.toggle('is-active', freeOnly);
+      freeBtn.setAttribute('aria-pressed', String(freeOnly));
+      apply(true);
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-decade]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        decade = btn.dataset.decade ?? 'all';
+        document.querySelectorAll('[data-decade]').forEach((b) => {
+          const on = b === btn;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
+        apply(true);
+      });
+    });
+  }
+
+  // The router swaps documents without re-running module scripts, so this has
+  // to re-bind per page rather than once per session.
+  document.addEventListener('astro:page-load', setupPapers);
+</script>

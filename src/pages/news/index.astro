@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+
+const news = (await getCollection('news'))
+  .filter((n) => !n.data.draft || import.meta.env.DEV)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+// Grouped by year so a list this long has somewhere for the eye to rest.
+const byYear: { year: number; items: typeof news }[] = [];
+for (const item of news) {
+  const year = item.data.date.getUTCFullYear();
+  const last = byYear[byYear.length - 1];
+  if (last && last.year === year) last.items.push(item);
+  else byYear.push({ year, items: [item] });
+}
+---
+
+<Base
+  title="News"
+  description="Awards, grants, arrivals and departures from the CANDY Lab at UCLA."
+>
+  <PageHeader eyebrow="News" title="Lab News" />
+
+  <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+    {
+      byYear.map((group, gi) => (
+        <div class:list={[gi > 0 ? 'mt-16' : '']}>
+          <div class="flex items-baseline gap-5">
+            <h2 class="reveal meta shrink-0 text-[1rem] text-signal">{group.year}</h2>
+            <div class="reveal-rule h-px flex-1 bg-ink/15" data-reveal-delay="100" />
+          </div>
+
+          <ol class="mt-6">
+            {group.items.map((item, i) => (
+              <li
+                class="reveal index-row -mx-4 border-t border-ink/10 px-4 py-6 last:border-b"
+                data-reveal-delay={String(Math.min(i, 8) * 45)}
+              >
+                <a href={`/news/${item.id}`} class="flex flex-col gap-x-8 gap-y-1.5 sm:flex-row">
+                  <time
+                    class="meta shrink-0 pt-1 text-ink-faint sm:w-36"
+                    datetime={item.data.date.toISOString().slice(0, 10)}
+                  >
+                    {dateFmt.format(item.data.date)}
+                  </time>
+                  <span class="flex-1 font-display text-[1.15rem] leading-snug text-ink">
+                    {item.data.title}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ))
+    }
+  </section>
+</Base>

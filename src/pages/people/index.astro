@@ -1,0 +1,72 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PersonCard from '../../components/PersonCard.astro';
+
+const people = (await getCollection('people'))
+  .filter((p) => p.data.status === 'current' && p.data.listed)
+  .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+// The lab distinguishes eight kinds of membership and the distinctions matter
+// to the people in them, so the headings come from the content rather than
+// being inferred. Order follows the `order` field, which was seeded from the
+// order the lab already uses.
+const groups: { name: string; members: typeof people }[] = [];
+for (const person of people) {
+  const name = person.data.group ?? 'Lab members';
+  const last = groups[groups.length - 1];
+  if (last && last.name === name) last.members.push(person);
+  else groups.push({ name, members: [person] });
+}
+
+const total = people.length;
+---
+
+<Base
+  title="People"
+  description={`The ${total} people currently in the CANDY Lab at UCLA, from the director to volunteer research assistants.`}
+>
+  <PageHeader
+    eyebrow="People"
+    title="People"
+    lede="The lab is a mix of clinicians, imaging scientists, graduate students and undergraduate research assistants."
+  />
+
+  <div class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+    {
+      groups.map((group, gi) => (
+        <section class:list={[gi > 0 ? 'mt-20' : '']}>
+          <div class="flex items-baseline gap-5">
+            <h2 class="reveal shrink-0 font-display text-title text-ink">{group.name}</h2>
+            <div class="reveal-rule h-px flex-1 bg-ink/15" data-reveal-delay="120" />
+            <span class="reveal meta shrink-0 text-ink-faint" data-reveal-delay="180">
+              {String(group.members.length).padStart(2, '0')}
+            </span>
+          </div>
+
+          <ul class="mt-10 grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3 xl:grid-cols-5">
+            {group.members.map((person, i) => (
+              <li class="reveal" data-reveal-delay={String((i % 5) * 60)}>
+                <PersonCard person={person} href={`/people/${person.id}`} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <section class="mt-24 border-t border-ink/10 pt-12">
+      <a
+        href="/people/alumni"
+        class="index-row -mx-4 flex flex-col gap-2 px-4 py-8 transition-colors duration-500 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <span>
+          <span class="text-eyebrow font-medium uppercase text-signal">Lab alumni</span>
+          <span class="mt-2 block font-display text-title text-ink">Where everyone went next</span>
+        </span>
+        <span class="shrink-0 text-signal" aria-hidden="true">→</span>
+      </a>
+    </section>
+  </div>
+</Base>

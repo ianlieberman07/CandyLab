@@ -1,0 +1,107 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Notice from '../../components/Notice.astro';
+
+export const getStaticPaths = (async () => {
+  // Only current members get a page of their own — the alumni entries are a
+  // roster line, not a biography, and a page per alumnus would be 34 near-empty
+  // documents.
+  const people = await getCollection('people');
+  return people
+    .filter((p) => p.data.status === 'current' && p.data.listed)
+    .map((person) => ({ params: { person: person.id }, props: { person } }));
+}) satisfies GetStaticPaths;
+
+const { person } = Astro.props;
+const { Content } = await render(person);
+const { name, credential, role, group, headshot, headshotAlt, links, email } = person.data;
+
+const initials = name
+  .split(' ')
+  .filter(Boolean)
+  .map((p) => p[0])
+  .slice(0, 2)
+  .join('');
+---
+
+<Base
+  title={name}
+  description={`${name}${credential ? `, ${credential}` : ''} — ${role} in the CANDY Lab at UCLA.`}
+>
+  <article class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-20 md:py-28">
+    <a href="/people" class="link-rule text-[0.9rem]">← All people</a>
+
+    <div class="mt-10 grid gap-12 lg:grid-cols-[20rem_1fr] lg:gap-20">
+      <div class="reveal">
+        <div class="aspect-[4/5] overflow-hidden border border-ink/10 bg-paper-sunk">
+          {
+            headshot ? (
+              <Image
+                src={headshot}
+                alt={headshotAlt || `Portrait of ${name}.`}
+                widths={[320, 560, 800]}
+                sizes="(min-width: 1024px) 20rem, 92vw"
+                loading="eager"
+                class="h-full w-full object-cover"
+              />
+            ) : (
+              <div
+                class="flex h-full w-full items-center justify-center bg-gradient-to-br from-paper-sunk to-paper"
+                role="img"
+                aria-label={`No photograph available for ${name}.`}
+              >
+                <span class="font-display text-[3rem] text-ink/20">{initials}</span>
+              </div>
+            )
+          }
+        </div>
+
+        {
+          (email || links.length > 0) && (
+            <ul class="mt-6 space-y-2 text-[0.92rem]">
+              {email && (
+                <li>
+                  <a href={`mailto:${email}`} class="link-rule">
+                    {email}
+                  </a>
+                </li>
+              )}
+              {links.map((link) => (
+                <li>
+                  <a href={link.url} rel="noopener" class="link-rule">
+                    {link.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+
+      <div>
+        <p class="reveal text-eyebrow font-medium uppercase text-signal">{group ?? role}</p>
+        <h1 class="reveal mt-5 font-display text-display text-ink" data-reveal-delay="80">
+          {name}{credential && <span class="text-ink-muted">, {credential}</span>}
+        </h1>
+        <p class="reveal mt-3 text-lede text-ink-muted" data-reveal-delay="140">{role}</p>
+
+        {
+          person.data.needsReview && (
+            <div class="mt-10">
+              <Notice title="Marked as incomplete">
+                <p>This biography is flagged for review in the admin.</p>
+              </Notice>
+            </div>
+          )
+        }
+
+        <div class="reveal prose-lab mt-10 max-w-(--container-prose)" data-reveal-delay="200">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </article>
+</Base>

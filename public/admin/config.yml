@@ -1,0 +1,643 @@
+# Admin configuration for the CANDY Lab site.
+#
+# Every field below maps to a real file in /content/. Saving in the admin UI
+# writes a git commit, so nothing is ever lost and any change can be undone.
+#
+# Labels and hints are written for Dr. Ho, not for a developer.
+#
+# Accessibility note: every image field in this file is paired with a
+# description field, because an image with no description is invisible to
+# anyone using a screen reader. Where the photo has a visible caption the
+# description is optional (the caption already says it); where it does not,
+# the description is required and the admin will not let the entry save
+# without one.
+
+backend:
+  name: github
+  repo: ianlieberman07/CandyLab
+  branch: main
+  # Where the GitHub sign-in handshake happens.
+  #
+  # Without this line Sveltia defaults to api.netlify.com, which only works for
+  # sites hosted on Netlify. This one is not, so Netlify answers "Not Found"
+  # and the admin reports "Authentication aborted."
+  #
+  # This is the address of the small official auth worker
+  # (github.com/sveltia/sveltia-cms-auth), deployed separately.
+  # DOCS/DEPLOYMENT.md walks through it.
+  #
+  # NOTE: this assumes the worker keeps its default name on the same Cloudflare
+  # subdomain. If Cloudflare named it something else, correct this one line —
+  # it is the only place the address appears.
+  base_url: https://sveltia-cms-auth.ianlieberman07.workers.dev
+
+# Save publishes. No draft/review workflow to learn.
+publish_mode: simple
+
+# Fallback location for any image that is not attached to a specific
+# collection.
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  # ─────────────────────────────────────────────────────────────
+  # Current members. Filtered to status=current, so this list shows exactly
+  # what the People page shows.
+  - name: people
+    label: Lab Members
+    label_singular: Lab member
+    description: >-
+      Everyone currently in the lab. Adding a person here puts them on the
+      People page. To move someone out of the lab, change "Currently in the
+      lab?" to No — they move to Lab Alumni and keep everything you have
+      written about them.
+    folder: content/people
+    filter: { field: status, value: current }
+    create: true
+    delete: true
+    slug: '{{slug}}'
+    media_folder: images
+    public_folder: ./images
+    summary: '{{name}} — {{group}}'
+    sortable_fields: [order, name, group]
+    fields:
+      - { name: name, label: Full name, widget: string }
+      - {
+          name: credential,
+          label: Letters after their name,
+          widget: string,
+          required: false,
+          hint: 'Shown after the name — for example Ph.D. or B.A. Leave empty for none.',
+        }
+      - {
+          name: role,
+          label: Title,
+          widget: string,
+          default: Research Assistant,
+          hint: 'Their job title, e.g. Postdoctoral Scientist, Graduate Student.',
+        }
+      - name: group
+        label: Which heading do they appear under?
+        widget: select
+        default: Volunteer Research Assistants
+        hint: The People page is split under these headings. Pick the one this person belongs to.
+        options:
+          - Director
+          - Study Coordinators
+          - Postdoctoral Scientists
+          - Graduate Students
+          - Rotating Graduate Students
+          - Collaborating Graduate Students & Postdocs
+          - Volunteer Research Assistants
+          - Volunteers (Non-Undergraduate)
+      - name: status
+        label: Currently in the lab?
+        widget: select
+        default: current
+        options:
+          - { label: 'Yes — show on the People page', value: current }
+          - { label: 'No — move to Lab Alumni', value: alumni }
+      - {
+          name: order,
+          label: Position in the list,
+          widget: number,
+          default: 6099,
+          value_type: int,
+          hint: 'Lower numbers appear first, within their heading. Only worth changing if someone is in the wrong place.',
+        }
+      - {
+          name: listed,
+          label: 'Show this person on the site?',
+          widget: boolean,
+          default: true,
+          hint: 'Turn this off to hide someone without deleting them. You can turn it back on at any time.',
+        }
+      - {
+          name: headshot,
+          label: Photograph,
+          widget: image,
+          required: false,
+          hint: "Optional. Without one, the card shows the person's initials — it will not look broken.",
+        }
+      - {
+          name: headshotAlt,
+          label: Photo description,
+          widget: string,
+          required: false,
+          hint: 'For people who cannot see the photo. Something like "Portrait of Jane Doe." If you leave this blank the site writes that sentence for you, so it is never empty.',
+        }
+      - {
+          name: email,
+          label: Email address,
+          widget: string,
+          required: false,
+          hint: 'Optional. Only add it if this person is happy for it to be public.',
+        }
+      - name: links
+        label: Links
+        widget: list
+        required: false
+        label_singular: Link
+        summary: '{{fields.label}}'
+        hint: 'Optional — a CV, Google Scholar profile, personal site.'
+        fields:
+          - { name: label, label: Link text, widget: string }
+          - { name: url, label: Web address, widget: string, hint: 'Paste the full https:// address.' }
+      - {
+          name: needsReview,
+          label: Mark as incomplete,
+          widget: boolean,
+          default: false,
+          hint: 'Tick this if the bio still needs writing. It shows a notice on the site so you cannot forget.',
+        }
+      - {
+          name: body,
+          label: Biography,
+          widget: markdown,
+          required: false,
+          hint: 'Use the italic button for emphasis. Leave a blank line between paragraphs.',
+        }
+
+  # ─────────────────────────────────────────────────────────────
+  # Same folder, filtered the other way. Kept as its own list because
+  # scrolling past 34 alumni to find a current member would be miserable.
+  - name: alumni
+    label: Lab Alumni
+    label_singular: Alumnus
+    description: >-
+      Former lab members. Anyone you switch to "No — move to Lab Alumni" in Lab
+      Members appears here automatically; you do not need to retype them.
+    folder: content/people
+    filter: { field: status, value: alumni }
+    create: true
+    delete: true
+    slug: 'alumni-{{slug}}'
+    media_folder: images
+    public_folder: ./images
+    summary: '{{name}} — {{years}}'
+    sortable_fields: [order, name, years]
+    fields:
+      - { name: name, label: Full name, widget: string }
+      - {
+          name: credential,
+          label: Letters after their name,
+          widget: string,
+          required: false,
+          hint: 'Shown after the name — for example Ph.D. Leave empty for none.',
+        }
+      - {
+          name: years,
+          label: Years in the lab,
+          widget: string,
+          required: false,
+          hint: 'For example 2023-2025, or just 2024.',
+        }
+      - {
+          name: labRole,
+          label: What they did here,
+          widget: string,
+          required: false,
+          hint: 'For example Undergraduate RA, Postdoctoral Scientist, Lab Manager.',
+        }
+      - {
+          name: role,
+          label: Where they are now,
+          widget: string,
+          required: false,
+          hint: 'For example Ph.D. student at UT Austin. Leave blank if you do not know — the site simply omits it rather than guessing.',
+        }
+      - {
+          name: listed,
+          label: 'Show on the Alumni page?',
+          widget: boolean,
+          default: true,
+          hint: 'Turn this off to hide someone without deleting them.',
+        }
+      - name: status
+        label: Currently in the lab?
+        widget: select
+        default: alumni
+        options:
+          - { label: 'Yes — move back to Lab Members', value: current }
+          - { label: 'No — stays on Lab Alumni', value: alumni }
+      - {
+          name: order,
+          label: Position in the list,
+          widget: number,
+          default: 100,
+          value_type: int,
+          hint: Lower numbers appear first.,
+        }
+      - { name: headshot, label: Photograph, widget: image, required: false }
+      - {
+          name: headshotAlt,
+          label: Photo description,
+          widget: string,
+          required: false,
+          hint: 'For people who cannot see the photo. Left blank, the site writes "Portrait of <name>." for you.',
+        }
+      - { name: needsReview, label: Mark as incomplete, widget: boolean, default: false }
+      - { name: body, label: Note, widget: markdown, required: false }
+
+  # ─────────────────────────────────────────────────────────────
+  - name: research
+    label: Studies
+    label_singular: Study
+    description: >-
+      Each study gets its own page, and is listed on the Research page and the
+      home page automatically. Adding one here is all that is needed.
+    folder: content/research
+    create: true
+    delete: true
+    slug: '{{slug}}'
+    media_folder: images
+    public_folder: ./images
+    summary: '{{title}}'
+    sortable_fields: [order, title]
+    fields:
+      - { name: title, label: Study name, widget: string }
+      - {
+          name: order,
+          label: Position in the list,
+          widget: number,
+          default: 100,
+          value_type: int,
+          hint: Lower numbers appear first.,
+        }
+      - {
+          name: status,
+          label: Status tag,
+          widget: string,
+          required: false,
+          hint: 'Optional. A short note shown next to the name, e.g. "Coming soon" or "Data analysis stage". Leave blank for a study that is simply running.',
+        }
+      - {
+          name: summary,
+          label: Short summary,
+          widget: text,
+          hint: 'One or two sentences. This is what appears on the Research page card and the home page list.',
+        }
+      - {
+          name: hero,
+          label: Study image,
+          widget: image,
+          required: false,
+          hint: 'A logo or figure for this study. Small images are shown at their own size rather than stretched, so a logo will not look blurry.',
+        }
+      - {
+          name: heroAlt,
+          label: Image description,
+          widget: string,
+          required: false,
+          hint: 'For people who cannot see the image. If the image is just a logo of the study name, you can leave this blank — the heading beside it already says the name.',
+        }
+      - { name: needsReview, label: Mark as incomplete, widget: boolean, default: false }
+      - {
+          name: body,
+          label: Full text,
+          widget: markdown,
+          hint: 'Use the italic and bold buttons for emphasis — they are preserved on the site. Use the link button for study sign-up forms and papers.',
+        }
+
+  # ─────────────────────────────────────────────────────────────
+  - name: news
+    label: News
+    label_singular: News item
+    description: >-
+      Announcements. The three most recent also appear on the home page. Most
+      of these are just a headline and a date — that is fine, the text below is
+      optional.
+    folder: content/news
+    create: true
+    delete: true
+    slug: '{{slug}}'
+    media_folder: images
+    public_folder: ./images
+    summary: '{{date}} — {{title}}'
+    sortable_fields: [date, title]
+    fields:
+      - {
+          name: title,
+          label: Headline,
+          widget: string,
+          hint: 'The whole announcement can live here — you do not have to write anything else.',
+        }
+      - { name: date, label: Date, widget: datetime, date_format: 'YYYY-MM-DD', time_format: false, picker_utc: true }
+      - {
+          name: draft,
+          label: Draft,
+          widget: boolean,
+          default: false,
+          hint: 'Tick this while you are still writing. It stays off the website until you untick it.',
+        }
+      - { name: needsReview, label: Mark as incomplete, widget: boolean, default: false }
+      - {
+          name: body,
+          label: More detail,
+          widget: markdown,
+          required: false,
+          hint: 'Optional. Leave blank for a headline-only announcement.',
+        }
+
+  # ─────────────────────────────────────────────────────────────
+  - name: pages
+    label: Pages
+    label_singular: Page
+    description: >-
+      Every ordinary page on the site — Join, Participate, Resources, Lab
+      Values and so on — plus any new one you make. A new page gets its own web
+      address and is laid out in the same style as the rest of the site
+      automatically.
+
+
+      "About Us" is the one exception in this list: it is printed on the home
+      page rather than having a page of its own, so its address and menu
+      settings are ignored.
+    folder: content/pages
+    create: true
+    delete: true
+    slug: '{{slug}}'
+    media_folder: images
+    public_folder: ./images
+    summary: '{{title}}'
+    sortable_fields: [navOrder, title]
+    fields:
+      - { name: title, label: Page title, widget: string, hint: The large heading at the top of the page. }
+      - {
+          name: eyebrow,
+          label: Small label above the title,
+          widget: string,
+          default: CANDY Lab,
+          required: false,
+          hint: 'A short word or two, e.g. "Opportunities" or "For participants".',
+        }
+      - {
+          name: lede,
+          label: Opening line,
+          widget: text,
+          required: false,
+          hint: One sentence under the title. Leave blank if you do not want one.,
+        }
+      - {
+          name: hero,
+          label: Header image,
+          widget: image,
+          required: false,
+          hint: 'Optional. Sits beside the title.',
+        }
+      - {
+          name: heroAlt,
+          label: Header image description,
+          widget: string,
+          required: false,
+          hint: 'For people who cannot see the image. Describe what is in it in a short sentence.',
+        }
+      - name: gallery
+        label: Show a photo set on this page?
+        widget: select
+        required: false
+        default: ''
+        hint: 'Only used by the Lab Gallery and Meet Our Pets pages. Leave as "No photo set" for every other page.'
+        options:
+          - { label: 'No photo set', value: '' }
+          - { label: 'Lab Gallery photos', value: gallery }
+          - { label: 'Pet photos', value: pets }
+      - {
+          name: showInNav,
+          label: 'Show in the menu at the top?',
+          widget: boolean,
+          default: true,
+          hint: 'The top menu holds about seven items comfortably. Pages turned off here are still listed in the footer, so nothing becomes unreachable.',
+        }
+      - {
+          name: navLabel,
+          label: Shorter name for the menu,
+          widget: string,
+          required: false,
+          hint: 'Optional. Use this when the page title is too long to sit in the menu.',
+        }
+      - {
+          name: navOrder,
+          label: Position in the menu,
+          widget: number,
+          default: 50,
+          value_type: int,
+          hint: 'Lower numbers come first. The fixed sections are Home 10, Research 20, Publications 30, People 40, News 45 — leave this at 50 to appear after them.',
+        }
+      - {
+          name: draft,
+          label: Draft,
+          widget: boolean,
+          default: false,
+          hint: 'Tick this while you are still writing. The page stays off the website until you untick it.',
+        }
+      - {
+          name: needsReview,
+          label: Mark as incomplete,
+          widget: boolean,
+          default: false,
+          hint: 'Shows a visible notice on the page saying it is still a placeholder.',
+        }
+      - {
+          name: body,
+          label: Text,
+          widget: markdown,
+          required: false,
+          hint: 'Use the italic and bold buttons for emphasis. Leave a blank line between paragraphs.',
+        }
+
+  # ─────────────────────────────────────────────────────────────
+  - name: publications
+    label: Publications
+    files:
+      - name: papers
+        label: Publication list
+        file: content/papers.json
+        description: >-
+          Every paper on the Publications page. "Free to read" is what drives
+          the filter and the teal dot, so only tick it when the paper really can
+          be read without a subscription.
+        fields:
+          - name: papers
+            label: Publications
+            label_singular: Publication
+            widget: list
+            summary: '{{fields.year}} — {{fields.title}}'
+            fields:
+              - {
+                  name: id,
+                  label: Number,
+                  widget: number,
+                  value_type: int,
+                  hint: 'Just an internal number used for ordering within a year. Use one higher than the current highest.',
+                }
+              - { name: title, label: Title, widget: string }
+              - {
+                  name: authors,
+                  label: Authors,
+                  widget: string,
+                  hint: 'As they appear in print. Put *asterisks* around a lab member''s name to show it in bold, e.g. Smith J, *Ho TC*.',
+                }
+              - {
+                  name: journal,
+                  label: Journal,
+                  widget: string,
+                  required: false,
+                  hint: 'e.g. Biological Psychiatry',
+                }
+              - { name: year, label: Year, widget: number, value_type: int, default: 2026 }
+              - {
+                  name: doi,
+                  label: Link to the paper,
+                  widget: string,
+                  required: false,
+                  hint: 'The publisher''s page or the DOI link. Paste the full https:// address. Leave blank if there is not one — the site then offers a search link instead of a dead end.',
+                }
+              - {
+                  name: openAccess,
+                  label: 'Free to read?',
+                  widget: boolean,
+                  default: false,
+                  hint: 'Tick this only if anyone can read the full paper without paying or logging in. This is what the "Free to read" filter uses.',
+                }
+              - {
+                  name: free,
+                  label: Free copy at a different address,
+                  widget: string,
+                  required: false,
+                  hint: 'Only if the free version lives somewhere else — a PubMed Central or bioRxiv page. Leave blank when the link above is already the free one.',
+                }
+              - {
+                  name: preprintOnly,
+                  label: 'The free copy is a preprint',
+                  widget: boolean,
+                  default: false,
+                  hint: 'Tick this when the only free version is the preprint rather than the published article. The site then labels it "Free preprint" so nobody is misled.',
+                }
+              - {
+                  name: sourceLink,
+                  label: Link from the old site,
+                  widget: string,
+                  required: false,
+                  hint: 'Kept for reference during the move. You can ignore this.',
+                }
+              - {
+                  name: needsCheck,
+                  label: Needs checking,
+                  widget: boolean,
+                  default: false,
+                  hint: 'Ticked where the link on the old site did not match the registered record for the paper.',
+                }
+
+  # ─────────────────────────────────────────────────────────────
+  # Photo sets. Separate from Pages because a list of photos is a different
+  # job from writing a page, and mixing them would make both harder.
+  - name: gallery
+    label: Lab Gallery photos
+    files:
+      - name: gallery
+        label: Lab Gallery
+        file: content/gallery.json
+        description: The photos on the Lab Gallery page, in the order they appear.
+        fields:
+          - name: items
+            label: Photos
+            label_singular: Photo
+            widget: list
+            summary: '{{fields.caption}}'
+            fields:
+              - { name: image, label: Photo, widget: image }
+              - {
+                  name: caption,
+                  label: Caption,
+                  widget: string,
+                  hint: 'Printed under the photo — who is in it and what the occasion was.',
+                }
+              - {
+                  name: alt,
+                  label: Photo description,
+                  widget: string,
+                  required: false,
+                  hint: 'Optional here, because the caption above is read out instead. Only fill this in if the picture shows something the caption does not say.',
+                }
+
+  - name: pets
+    label: Pet photos
+    files:
+      - name: pets
+        label: Meet Our Pets
+        file: content/pets.json
+        description: >-
+          The photos on the Meet Our Pets page. These have no captions, so the
+          description is the only thing a blind visitor gets — please write one
+          for each.
+        fields:
+          - name: items
+            label: Photos
+            label_singular: Photo
+            widget: list
+            summary: '{{fields.alt}}'
+            fields:
+              - { name: image, label: Photo, widget: image }
+              - {
+                  name: caption,
+                  label: Caption,
+                  widget: string,
+                  required: false,
+                  hint: 'Optional — whose pet this is, and their name.',
+                }
+              - {
+                  name: alt,
+                  label: Photo description,
+                  widget: string,
+                  required: false,
+                  hint: 'What is in the photo, for anyone who cannot see it. A few words is enough: "A tabby cat asleep on a keyboard."',
+                }
+
+  # ─────────────────────────────────────────────────────────────
+  - name: settings
+    label: Site Details
+    files:
+      - name: site
+        label: Lab name and contact details
+        file: content/site.json
+        description: Appears in the footer and on the home page.
+        fields:
+          - { name: labName, label: Full lab name, widget: string }
+          - { name: labNameShort, label: Short name, widget: string }
+          - { name: director, label: Director, widget: string }
+          - { name: institution, label: Institution, widget: string }
+          - { name: department, label: Department, widget: string }
+          - {
+              name: tagline,
+              label: Tagline,
+              widget: string,
+              required: false,
+              hint: 'The sentence under the lab name on the home page.',
+            }
+          - name: contact
+            label: Contact details
+            widget: object
+            fields:
+              - {
+                  name: building,
+                  label: Building and room,
+                  widget: string,
+                  required: false,
+                  hint: 'Anything left blank here is simply left off the site — nothing looks broken.',
+                }
+              - name: addressLines
+                label: Mailing address
+                widget: list
+                required: false
+                field: { name: line, label: Line, widget: string }
+              - { name: mailCode, label: Mail code, widget: string, required: false }
+              - { name: email, label: Email, widget: string, required: false }
+              - { name: phone, label: Phone, widget: string, required: false }
+              - {
+                  name: instagram,
+                  label: Instagram address,
+                  widget: string,
+                  required: false,
+                  hint: 'The full https:// address of the lab account.',
+                }

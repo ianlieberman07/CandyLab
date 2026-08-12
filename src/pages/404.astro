@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" description="That page does not exist on the CANDY Lab site.">
+  <section
+    class="mx-auto flex min-h-[60svh] max-w-[104rem] flex-col justify-center px-(--spacing-gutter) py-(--spacing-section)"
+  >
+    <p class="meta text-signal">404</p>
+    <h1 class="mt-5 max-w-[18ch] font-display text-display text-ink">
+      That page isn’t here.
+    </h1>
+    <p class="mt-6 max-w-(--container-prose) text-lede text-ink-dim">
+      It may have moved when the site was rebuilt. These are the places most people are looking
+      for.
+    </p>
+    <ul class="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-[1rem]">
+      <li><a href="/" class="link-rule">Home</a></li>
+      <li><a href="/research" class="link-rule">Research</a></li>
+      <li><a href="/publications" class="link-rule">Publications</a></li>
+      <li><a href="/people" class="link-rule">People</a></li>
+      <li><a href="/news" class="link-rule">News</a></li>
+      <li><a href="/participate" class="link-rule">Participate in a study</a></li>
+    </ul>
+  </section>
+</Base>
