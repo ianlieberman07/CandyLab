@@ -402,12 +402,28 @@ collections:
           - { label: 'No photo set', value: '' }
           - { label: 'Lab Gallery photos', value: gallery }
           - { label: 'Pet photos', value: pets }
+      - name: navParent
+        label: Which section does this page belong under?
+        widget: select
+        required: false
+        default: ''
+        hint: >-
+          Puts this page inside a section's dropdown instead of giving it its
+          own slot in the top menu — the way Meet Our Pets sits under People.
+          Choose "Its own place in the menu" for a page that should be
+          top-level.
+        options:
+          - { label: 'Its own place in the menu', value: '' }
+          - { label: 'Under People', value: people }
+          - { label: 'Under Research', value: research }
+          - { label: 'Under Resources', value: resources }
+          - { label: 'Under Join', value: join }
       - {
           name: showInNav,
           label: 'Show in the menu at the top?',
           widget: boolean,
           default: true,
-          hint: 'The top menu holds about seven items comfortably. Pages turned off here are still listed in the footer, so nothing becomes unreachable.',
+          hint: 'Only applies to pages set to "Its own place in the menu" above. A page inside a dropdown always shows there.',
         }
       - {
           name: navLabel,
@@ -592,6 +608,44 @@ collections:
                   widget: string,
                   required: false,
                   hint: 'What is in the photo, for anyone who cannot see it. A few words is enough: "A tabby cat asleep on a keyboard."',
+                }
+
+  # ─────────────────────────────────────────────────────────────
+  # Header photographs for the sections that are built-in rather than pages —
+  # Home, Research, Publications, People, Alumni, News. Kept editable because
+  # a hero image hardcoded in a template is a maintenance request forever, and
+  # heroes are the images most likely to be swapped.
+  - name: headers
+    label: Page header photos
+    files:
+      - name: headers
+        label: Header photos
+        file: content/headers.json
+        description: >-
+          The large photograph at the top of each main section. Replacing one
+          is a single upload. Try not to use the same photograph on two
+          different pages — it makes the site look thinner than it is.
+        fields:
+          - name: headers
+            label: Sections
+            label_singular: Section
+            widget: list
+            summary: '{{fields.label}}'
+            fields:
+              - {
+                  name: key,
+                  label: Section,
+                  widget: string,
+                  hint: 'Do not change this — it is how the site knows which page the photo belongs to.',
+                }
+              - { name: label, label: Name, widget: string }
+              - { name: image, label: Photograph, widget: image, required: false }
+              - {
+                  name: alt,
+                  label: Photo description,
+                  widget: string,
+                  required: false,
+                  hint: 'For people who cannot see the photo. Say who or what is in it, in a short sentence.',
                 }
 
   # ─────────────────────────────────────────────────────────────

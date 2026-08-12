@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import { getHeader } from '../utils/headers';
 import PageHeader from '../components/PageHeader.astro';
 import { emphasize } from '../utils/emphasis';
 
@@ -22,6 +23,8 @@ const freeCount = papers.filter((p) => p.data.openAccess).length;
 
 const scholar = (title: string) =>
   `https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`;
+
+const header = getHeader('publications');
 ---
 
 <Base
@@ -29,6 +32,8 @@ const scholar = (title: string) =>
   description={`${total} publications from the CANDY Lab at UCLA, directed by Tiffany Ho. ${freeCount} are free to read.`}
 >
   <PageHeader
+    image={header.image}
+    imageAlt={header.alt}
     eyebrow="Publications"
     title="Publications"
     lede={`${total} papers. ${freeCount} of them can be read in full without a subscription — use the “Free to read” filter to see only those.`}

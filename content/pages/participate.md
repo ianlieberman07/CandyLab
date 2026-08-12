@@ -1,9 +1,12 @@
 ---
 title: 'Participate in a Study'
+heroAlt: 'Members of the lab staffing a CANDY Lab table at a UCLA wellness recruitment event.'
+hero: ./images/gallery/gallery-07.jpg
 eyebrow: 'For participants'
 lede: 'Paid research on how mood affects the brain and body, for 14- to 21-year-olds in the Los Angeles area.'
 showInNav: true
-navOrder: 25
+navOrder: 60
+navLabel: 'Participate'
 draft: false
 needsReview: false
 ---

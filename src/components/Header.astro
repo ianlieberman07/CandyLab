@@ -8,11 +8,15 @@ interface Props {
 const { transparent = false } = Astro.props;
 const path = Astro.url.pathname;
 
-// The fixed sections plus any page she created and left in the menu.
 const nav = await getNavItems();
 
 const isActive = (href: string) =>
   path === href || (href !== '/' && path.startsWith(href + '/'));
+
+// A section counts as current when the page showing is one of its children —
+// so "People" stays underlined while you are on Meet Our Pets.
+const isCurrentSection = (item: (typeof nav)[number]) =>
+  isActive(item.href) || item.children.some((child) => isActive(child.href));
 ---
 
 {/* The header carries no background of its own. It earns a blurred ground and a
@@ -41,36 +45,79 @@ const isActive = (href: string) =>
       >
         CANDY Lab
       </span>
-      <span class="hidden text-eyebrow font-medium uppercase text-ink-muted lg:inline">
-        UCLA
-      </span>
+      <span class="hidden text-eyebrow font-medium uppercase text-ink-muted lg:inline">UCLA</span>
     </a>
 
     <nav aria-label="Primary" class="hidden lg:block">
-      <ul class="flex items-center gap-8">
+      <ul class="flex items-center gap-7">
         {
           nav.map((item) => (
-            <li>
-              <a
-                href={item.href}
-                aria-current={isActive(item.href) ? 'page' : undefined}
-                class:list={[
-                  'relative text-[0.94rem] tracking-wide transition-colors duration-300 hover:text-ink',
-                  'after:absolute after:-bottom-1.5 after:left-0 after:h-px after:bg-signal after:transition-all after:duration-500',
-                  isActive(item.href)
-                    ? 'text-ink after:w-full'
-                    : 'text-ink-dim after:w-0 hover:after:w-full',
-                ]}
-              >
-                {item.label}
-              </a>
+            <li class:list={['nav-item relative', item.children.length > 0 && 'has-children']}>
+              <div class="flex items-center gap-1">
+                <a
+                  href={item.href}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  class:list={[
+                    'nav-link relative py-2 text-[0.94rem] tracking-wide transition-colors duration-300 hover:text-ink',
+                    'after:absolute after:bottom-0 after:left-0 after:h-px after:bg-signal after:transition-all after:duration-500',
+                    isCurrentSection(item)
+                      ? 'text-ink after:w-full'
+                      : 'text-ink-dim after:w-0 hover:after:w-full',
+                  ]}
+                >
+                  {item.label}
+                </a>
+
+                {/* The section is a real link AND a disclosure. The link goes to
+                    the section page; this button opens the list. Two separate
+                    controls because a top-level item that only opens a menu
+                    strands the section's own page, and one that only navigates
+                    hides its children from touch and keyboard entirely. */}
+                {item.children.length > 0 && (
+                  <button
+                    type="button"
+                    class="nav-toggle -mr-1 flex h-7 w-6 items-center justify-center text-ink-muted transition-colors hover:text-ink"
+                    aria-expanded="false"
+                    aria-label={`Show ${item.label} pages`}
+                  >
+                    <svg width="9" height="6" viewBox="0 0 9 6" fill="none" aria-hidden="true">
+                      <path
+                        d="M1 1l3.5 3.5L8 1"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {item.children.length > 0 && (
+                <ul class="nav-submenu absolute left-0 top-full z-50 w-60 border border-ink/10 bg-paper-raised py-1.5 shadow-lg">
+                  {item.children.map((child) => (
+                    <li>
+                      <a
+                        href={child.href}
+                        aria-current={isActive(child.href) ? 'page' : undefined}
+                        class:list={[
+                          'block px-4 py-2.5 text-[0.92rem] transition-colors duration-200 hover:bg-paper hover:text-ink',
+                          isActive(child.href) ? 'text-signal' : 'text-ink-dim',
+                        ]}
+                      >
+                        {child.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))
         }
       </ul>
     </nav>
 
-    <!-- Small screens: a details/summary disclosure. Works with zero JS. -->
+    <!-- Small screens: a details/summary disclosure. Works with zero JS, and
+         nests the children under their section rather than dropping them. -->
     <details class="group relative lg:hidden">
       <summary
         class="flex cursor-pointer list-none items-center gap-2 text-eyebrow font-medium uppercase text-ink-dim [&::-webkit-details-marker]:hidden"
@@ -90,7 +137,7 @@ const isActive = (href: string) =>
       </summary>
       <nav
         aria-label="Primary"
-        class="nav-panel absolute right-0 z-50 mt-5 w-60 border border-ink/10 bg-paper-raised p-2 shadow-xl"
+        class="nav-panel absolute right-0 z-50 mt-5 max-h-[75svh] w-64 overflow-y-auto border border-ink/10 bg-paper-raised p-2 shadow-xl"
       >
         <ul>
           {
@@ -100,12 +147,30 @@ const isActive = (href: string) =>
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   class:list={[
-                    'block px-4 py-3 text-[0.95rem] transition-colors hover:bg-paper hover:text-ink',
-                    isActive(item.href) ? 'text-signal' : 'text-ink-dim',
+                    'block px-4 py-2.5 text-[0.95rem] transition-colors hover:bg-paper hover:text-ink',
+                    isCurrentSection(item) ? 'text-signal' : 'text-ink-dim',
                   ]}
                 >
                   {item.label}
                 </a>
+                {item.children.length > 0 && (
+                  <ul class="mb-1 ml-4 border-l border-ink/10">
+                    {item.children.map((child) => (
+                      <li>
+                        <a
+                          href={child.href}
+                          aria-current={isActive(child.href) ? 'page' : undefined}
+                          class:list={[
+                            'block px-4 py-2 text-[0.9rem] transition-colors hover:bg-paper hover:text-ink',
+                            isActive(child.href) ? 'text-signal' : 'text-ink-muted',
+                          ]}
+                        >
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))
           }
@@ -114,3 +179,101 @@ const isActive = (href: string) =>
     </details>
   </div>
 </header>
+
+<style>
+  /* The submenu is hidden with `visibility` rather than `display: none` so it
+     can be transitioned, and so it stays out of the tab order while closed —
+     `visibility: hidden` removes descendants from focus, which `opacity: 0`
+     alone does not. A menu whose links can be tabbed into while invisible is
+     the classic dropdown accessibility bug. */
+  .nav-submenu {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-0.35rem);
+    transition:
+      opacity 0.25s var(--ease-out-soft),
+      transform 0.25s var(--ease-out-expo),
+      visibility 0.25s;
+  }
+
+  /* Opens on hover, on keyboard focus anywhere inside the item, and on the
+     toggle button. `:focus-within` is what makes it work with no JavaScript at
+     all — the button below is an enhancement for touch, not a requirement. */
+  .nav-item:hover > .nav-submenu,
+  .nav-item:focus-within > .nav-submenu,
+  .nav-item[data-open] > .nav-submenu {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* A gap between the link and the panel would close the menu as the pointer
+     crossed it. This bridges it without moving anything. */
+  .nav-item.has-children::after {
+    content: '';
+    position: absolute;
+    inset: 100% 0 auto 0;
+    height: 0.75rem;
+  }
+
+  .nav-toggle svg {
+    transition: transform 0.25s var(--ease-out-soft);
+  }
+  .nav-item:hover .nav-toggle svg,
+  .nav-item[data-open] .nav-toggle svg {
+    transform: rotate(180deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-submenu,
+    .nav-toggle svg {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /* Touch enhancement only. Hover and :focus-within already open the menu in
+     CSS, so this file failing to load costs a touch user the dropdown but
+     leaves every link reachable from the mobile panel and the footer. */
+  function setupNav() {
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.nav-item.has-children'));
+    if (!items.length) return;
+
+    const close = (item: HTMLElement) => {
+      item.removeAttribute('data-open');
+      item.querySelector('.nav-toggle')?.setAttribute('aria-expanded', 'false');
+    };
+    const closeAll = () => items.forEach(close);
+
+    for (const item of items) {
+      const toggle = item.querySelector<HTMLButtonElement>('.nav-toggle');
+      toggle?.addEventListener('click', (event) => {
+        event.preventDefault();
+        const open = item.hasAttribute('data-open');
+        closeAll();
+        if (!open) {
+          item.setAttribute('data-open', '');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      });
+    }
+
+    document.addEventListener('click', (event) => {
+      const target = event.target as Node;
+      if (!items.some((item) => item.contains(target))) closeAll();
+    });
+
+    // Escape closes the menu and returns focus to the control that opened it,
+    // rather than leaving the reader stranded inside a panel they cannot see.
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const open = items.find((item) => item.hasAttribute('data-open'));
+      if (!open) return;
+      close(open);
+      open.querySelector<HTMLButtonElement>('.nav-toggle')?.focus();
+    });
+  }
+
+  document.addEventListener('astro:page-load', setupNav);
+</script>

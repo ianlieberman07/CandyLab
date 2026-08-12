@@ -131,6 +131,40 @@ const sitemap = globSync(`${DIST}/sitemap*.xml`)
   .join('');
 if (sitemap.includes('/admin')) note('The sitemap advertises /admin, which is noindexed.');
 
+/* ── Every page must be reachable from the top bar ──────────────────────────
+   A page that exists but is in no menu is a page nobody finds. This happened
+   here: Meet Our Pets was built, linked from the footer, and unreachable from
+   the navigation — which is exactly how it reads to someone using the site.
+
+   Detail pages (one person, one study, one news item) are excluded: they are
+   reached from their index, which is itself in the bar. */
+const navMatch = home.match(/<nav aria-label="Primary"[\s\S]*?<\/nav>/);
+if (!navMatch) {
+  note('The home page has no <nav aria-label="Primary"> — the menu did not render.');
+} else {
+  const inBar = new Set([...navMatch[0].matchAll(/href="(\/[^"#?]*)"/g)].map((m) => m[1]));
+  const isDetail = (url) => /^\/(people|research|news)\/[^/]+$/.test(url) && url !== '/people/alumni';
+
+  const unreachable = pages
+    .map((p) => {
+      const dir = p.slice(DIST.length + 1).replace(/(^|\/)index\.html$/, '');
+      return dir === '' ? '/' : `/${dir}`;
+    })
+    // 404 is served by the host on a miss and has no business in a menu; the
+    // admin is noindexed and deliberately unlinked.
+    .filter((url) => url !== '/admin' && !/^\/404(\.html)?$/.test(url) && !isDetail(url))
+    .filter((url) => !inBar.has(url));
+
+  if (unreachable.length) {
+    note(
+      `${unreachable.length} page(s) exist but are in no top-bar menu:\n` +
+        unreachable.map((u) => `      ${u}`).join('\n') +
+        `\n\n    Give the page a "Which section does this page belong under?" value in the\n` +
+        `    admin so it nests in a dropdown, or leave "Show in the menu" ticked.`
+    );
+  }
+}
+
 /* ── Photos with neither a caption nor a description ────────────────────────
    `alt=""` is correct for a photo whose caption already carries its meaning.
    It is NOT correct for a photo with no caption at all — there, the image is

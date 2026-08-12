@@ -1,7 +1,8 @@
 ---
 title: 'Advice'
+navParent: resources
 eyebrow: 'Resources'
-showInNav: false
+showInNav: true
 navOrder: 91
 draft: false
 needsReview: false

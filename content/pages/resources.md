@@ -1,8 +1,8 @@
 ---
 title: 'Resources'
 eyebrow: 'Resources'
-showInNav: false
-navOrder: 90
+showInNav: true
+navOrder: 70
 draft: false
 needsReview: false
 ---

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { getHeader } from '../../utils/headers';
 import PageHeader from '../../components/PageHeader.astro';
 import PersonCard from '../../components/PersonCard.astro';
 
@@ -21,6 +22,8 @@ for (const person of people) {
 }
 
 const total = people.length;
+
+const header = getHeader('people');
 ---
 
 <Base
@@ -28,6 +31,8 @@ const total = people.length;
   description={`The ${total} people currently in the CANDY Lab at UCLA, from the director to volunteer research assistants.`}
 >
   <PageHeader
+    image={header.image}
+    imageAlt={header.alt}
     eyebrow="People"
     title="People"
     lede="The lab is a mix of clinicians, imaging scientists, graduate students and undergraduate research assistants."

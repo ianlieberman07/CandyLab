@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { getHeader } from '../../utils/headers';
 import PageHeader from '../../components/PageHeader.astro';
 
 // `listed: false` hides someone without deleting them — the entry stays in the
@@ -8,6 +9,8 @@ import PageHeader from '../../components/PageHeader.astro';
 const alumni = (await getCollection('people'))
   .filter((p) => p.data.status === 'alumni' && p.data.listed)
   .sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+
+const header = getHeader('alumni');
 ---
 
 <Base
@@ -15,6 +18,8 @@ const alumni = (await getCollection('people'))
   description={`${alumni.length} former members of the CANDY Lab at UCLA, and where they are now.`}
 >
   <PageHeader
+    image={header.image}
+    imageAlt={header.alt}
     eyebrow="People"
     title="Lab Alumni"
     lede="Everyone who has worked in the lab, and where they went next."

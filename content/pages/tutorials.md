@@ -1,7 +1,8 @@
 ---
 title: 'Tutorials'
+navParent: resources
 eyebrow: 'Resources'
-showInNav: false
+showInNav: true
 navOrder: 92
 draft: false
 needsReview: false

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { getHeader } from '../../utils/headers';
 import PageHeader from '../../components/PageHeader.astro';
 
 const news = (await getCollection('news'))
@@ -22,13 +23,21 @@ for (const item of news) {
   if (last && last.year === year) last.items.push(item);
   else byYear.push({ year, items: [item] });
 }
+
+const header = getHeader('news');
 ---
 
 <Base
   title="News"
   description="Awards, grants, arrivals and departures from the CANDY Lab at UCLA."
 >
-  <PageHeader eyebrow="News" title="Lab News" />
+  <PageHeader
+    image={header.image}
+    imageAlt={header.alt}
+    eyebrow="News"
+    title="Lab News"
+    lede="Awards, grants, first posters, arrivals and departures."
+  />
 
   <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
     {

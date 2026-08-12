@@ -147,6 +147,10 @@ const pages = defineCollection({
       showInNav: z.boolean().default(true),
       navLabel: z.string().optional(),
       navOrder: z.number().default(50),
+      // Nests this page inside a section's dropdown instead of giving it its
+      // own slot in the bar. Keeps the bar short without making pages
+      // unreachable, which is what hiding them from the menu did.
+      navParent: z.enum(['people', 'research', 'resources', 'join']).optional(),
       // Lets her build a page over several sittings without it being public.
       draft: z.boolean().default(false),
       needsReview: z.boolean().default(false),

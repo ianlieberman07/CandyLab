@@ -35,3 +35,30 @@ export const nav = [
   { label: 'People', href: '/people', order: 40 },
   { label: 'News', href: '/news', order: 45 },
 ];
+
+/**
+ * Sections that can hold a dropdown.
+ *
+ * A page nests under one of these by setting `navParent` to the matching key,
+ * which is a plain select in the admin — so the menu can be restructured
+ * without a developer. Anything with no parent stays top-level.
+ *
+ * `Alumni` is listed here rather than in `nav` because it is a route, not a
+ * page in /content, and it belongs under People.
+ */
+export const NAV_PARENTS = [
+  { key: 'people', label: 'People', href: '/people' },
+  { key: 'research', label: 'Research', href: '/research' },
+  { key: 'resources', label: 'Resources', href: '/resources' },
+  { key: 'join', label: 'Join', href: '/join' },
+] as const;
+
+export type NavParentKey = (typeof NAV_PARENTS)[number]['key'];
+
+/** Fixed routes that live inside a dropdown but have no /content page. */
+export const NAV_EXTRA_CHILDREN: {
+  parent: NavParentKey;
+  label: string;
+  href: string;
+  order: number;
+}[] = [{ parent: 'people', label: 'Lab Alumni', href: '/people/alumni', order: 10 }];

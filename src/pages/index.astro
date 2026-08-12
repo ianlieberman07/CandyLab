@@ -1,8 +1,36 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { getCollection, getEntry, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { site } from '../config';
+import { getHeader } from '../utils/headers';
 import { splitWords } from '../utils/splitWords';
+import galleryData from '../../content/gallery.json';
+
+const hero = getHeader('home');
+
+// A strip of lab-life photographs above the footer, linking through to the
+// gallery. Taken from the end of the list — the newest photographs — and
+// deliberately skipping the ones already used as page headers, so no
+// photograph on this page is one the reader has just seen at the top of
+// another.
+const HEADER_PHOTOS = new Set([
+  'gallery-01', 'gallery-05', 'gallery-07', 'gallery-09',
+  'gallery-11', 'gallery-12', 'gallery-25', 'gallery-30',
+]);
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  '../../content/pages/images/gallery/*.jpg',
+  { eager: true }
+);
+const strip = galleryData.items
+  .filter((item) => !HEADER_PHOTOS.has(item.image.split('/').pop()!.replace('.jpg', '')))
+  .slice(0, 5)
+  .map((item) => ({
+    src: files[item.image.replace('./', '../../content/pages/')]?.default,
+    caption: item.caption,
+  }))
+  .filter((item) => item.src);
 
 const studies = (await getCollection('research')).sort(
   (a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title)
@@ -44,20 +72,54 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   <section
     class="relative flex min-h-svh flex-col justify-between border-b border-ink/10 bg-paper-raised px-(--spacing-gutter) pb-[clamp(2.5rem,5vh,3.5rem)] pt-[clamp(6rem,14vh,10rem)]"
   >
-    <div class="mx-auto w-full max-w-[104rem]">
-      <p class="reveal text-eyebrow font-medium uppercase text-signal">
-        {site.department} · {site.institution}
-      </p>
+    {/* The lab photograph sits BESIDE the type, never behind it. Text over a
+        group photograph means either an unreadable heading or a veil heavy
+        enough that you cannot make out anyone's face — and the faces are the
+        entire point of this picture.
 
-      <h1
-        class="reveal-words mt-8 max-w-[16ch] font-display text-hero text-ink"
-        data-reveal-delay="90"
-        set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
-      />
+        One grid, one <Image>: the picture is a real column on a wide screen and
+        stacks under the heading on a narrow one. Rendering it twice and hiding
+        one by breakpoint would download both. */}
+    <div
+      class:list={[
+        'mx-auto grid w-full max-w-[104rem] items-center gap-10',
+        hero.image ? 'lg:grid-cols-[1.15fr_1fr] lg:gap-16' : '',
+      ]}
+    >
+      <div>
+        <p class="reveal text-eyebrow font-medium uppercase text-signal">
+          {site.department} · {site.institution}
+        </p>
 
-      <p class="reveal mt-8 max-w-(--container-prose) text-lede text-ink-dim" data-reveal-delay="420">
-        {site.tagline}
-      </p>
+        <h1
+          class="reveal-words mt-7 max-w-[16ch] font-display text-hero text-ink"
+          data-reveal-delay="90"
+          set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
+        />
+
+        <p
+          class="reveal mt-7 max-w-(--container-prose) text-lede text-ink-dim"
+          data-reveal-delay="420"
+        >
+          {site.tagline}
+        </p>
+      </div>
+
+      {
+        hero.image && (
+          <figure class="reveal-media overflow-hidden" data-reveal-delay="260">
+            <Image
+              src={hero.image}
+              alt={hero.alt}
+              widths={[560, 840, 1200]}
+              sizes="(min-width: 1024px) 42vw, 92vw"
+              loading="eager"
+              fetchpriority="high"
+              class="h-full w-full object-cover"
+            />
+          </figure>
+        )
+      }
     </div>
 
     <div class="mx-auto mt-[clamp(2.5rem,6vh,4rem)] w-full max-w-[104rem]">
@@ -164,6 +226,52 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
             </li>
           ))}
         </ul>
+      </section>
+    )
+  }
+
+  {/* ── Life in the lab ─────────────────────────────────────────
+      Deliberately the lab's own photographs rather than stock: conferences,
+      first posters, socials. None of these appears as a header elsewhere, so
+      nothing here is a picture the reader has just scrolled past. */}
+  {
+    strip.length > 0 && (
+      <section class="border-t border-ink/10 bg-paper-raised">
+        <div class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
+          <div class="flex flex-wrap items-baseline justify-between gap-4">
+            <h2 class="reveal font-display text-title text-ink">Life in the lab</h2>
+            <a href="/lab-gallery" class="reveal link-rule text-[0.95rem]" data-reveal-delay="80">
+              The whole gallery →
+            </a>
+          </div>
+
+          {/* Scrolls sideways on a phone rather than shrinking five photographs
+              into thumbnails nobody can make anyone out in. The container
+              scrolls, not the page. */}
+          <ul
+            class="mt-10 -mx-(--spacing-gutter) flex snap-x snap-mandatory gap-5 overflow-x-auto px-(--spacing-gutter) pb-3 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0"
+          >
+            {strip.map((photo, i) => (
+              <li class="reveal w-64 shrink-0 snap-start lg:w-auto" data-reveal-delay={String(i * 70)}>
+                <figure>
+                  <div class="aspect-[4/3] overflow-hidden border border-ink/10 bg-paper-sunk">
+                    <Image
+                      src={photo.src!}
+                      alt=""
+                      widths={[280, 480, 720]}
+                      sizes="(min-width: 1024px) 19vw, 16rem"
+                      loading="lazy"
+                      class="h-full w-full object-cover"
+                    />
+                  </div>
+                  <figcaption class="mt-3 text-[0.82rem] leading-snug text-ink-muted">
+                    {photo.caption}
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     )
   }

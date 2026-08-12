@@ -1,0 +1,40 @@
+{
+  "headers": [
+    {
+      "key": "home",
+      "label": "Home",
+      "image": "./pages/images/gallery/gallery-25.jpg",
+      "alt": "The CANDY Lab together on the steps of the UCLA Psychology building."
+    },
+    {
+      "key": "research",
+      "label": "Research",
+      "image": "./pages/images/gallery/gallery-12.jpg",
+      "alt": "Anu Mummaneni presenting a poster at the Society for Neuroscience meeting."
+    },
+    {
+      "key": "publications",
+      "label": "Publications",
+      "image": "./pages/images/gallery/gallery-11.jpg",
+      "alt": "Shiyin Liu standing beside her poster at the Society for Neuroscience meeting."
+    },
+    {
+      "key": "people",
+      "label": "People",
+      "image": "./pages/images/gallery/gallery-01.jpg",
+      "alt": "The whole lab lined up at their end-of-year social at a bowling alley."
+    },
+    {
+      "key": "alumni",
+      "label": "Lab Alumni",
+      "image": "./pages/images/gallery/gallery-30.jpg",
+      "alt": "CANDY Lab and Gotlib Lab members at a reunion dinner during the SOBP meeting."
+    },
+    {
+      "key": "news",
+      "label": "News",
+      "image": "./pages/images/gallery/gallery-05.jpg",
+      "alt": "Alan Law presenting his award-winning thesis research at PURC."
+    }
+  ]
+}

@@ -1,9 +1,12 @@
 ---
 title: 'Join the Lab'
+heroAlt: 'The lab together at an escape room social.'
+hero: ./images/gallery/gallery-09.jpg
 eyebrow: 'Opportunities'
 lede: 'Openings for coordinators, graduate students, postdoctoral researchers and undergraduate research assistants.'
 showInNav: true
-navOrder: 60
+navOrder: 65
+navLabel: 'Join'
 draft: false
 needsReview: false
 ---
