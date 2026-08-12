@@ -64,7 +64,11 @@ for (const page of pages) {
     else withAlt++;
 
     for (const [, name] of tag.matchAll(/\s([a-zA-Z_:][-a-zA-Z0-9_:.]*)="true"/g)) {
-      if (!KNOWN_IMG_ATTRS.has(name.toLowerCase())) {
+      const lower = name.toLowerCase();
+      // Astro emits data-astro-cid-* as a valueless boolean for scoped styles,
+      // and data-* is author-controlled by definition — neither is a leak.
+      if (lower.startsWith('data-')) continue;
+      if (!KNOWN_IMG_ATTRS.has(lower)) {
         junk.push(`${rel}: <img … ${name}="true">`);
       }
     }

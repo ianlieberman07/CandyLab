@@ -1,9 +1,11 @@
 ---
+import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { getHeader } from '../utils/headers';
 import PageHeader from '../components/PageHeader.astro';
 import { emphasize } from '../utils/emphasis';
+import brainNetworks from '../../content/pages/images/brain-networks.jpg';
 
 // Transcribed from the lab's own Publications page, then resolved: every entry
 // was matched against OpenAlex and Crossref for its registered DOI and its true
@@ -39,7 +41,38 @@ const header = getHeader('publications');
     lede={`${total} papers. ${freeCount} of them can be read in full without a subscription — use the “Free to read” filter to see only those.`}
   />
 
-  <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) pb-(--spacing-section)">
+  {/* A band from the lab's own imaging, not stock. Taken from Ho et al. 2021 in
+      Translational Psychiatry, which is CC BY — so it can be cropped and
+      reproduced provided it is credited, which is what the caption below does.
+      The crop removes the panel titles and slice coordinates and keeps the
+      imaging itself.
+
+      Nothing else on this site is licensed this way; see DOCS/QUESTIONS.md for
+      which of the 92 papers can and cannot be reused. */}
+  <figure class="border-y border-ink/10 bg-navy">
+    <Image
+      src={brainNetworks}
+      alt="Nine brain slices showing default mode and salience network activation in orange, yellow and green on black."
+      widths={[900, 1400, 2320]}
+      sizes="100vw"
+      loading="lazy"
+      class="h-auto w-full"
+    />
+    <figcaption class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-4 text-[0.78rem] leading-relaxed text-paper/55">
+      Default mode and salience network alterations in adolescents with depression. Ho TC, Walker
+      JC, Teresi GI, Kulla A, Kirshenbaum JS, Gifuni AJ, Singh MK, Gotlib IH.{' '}
+      <em>Translational Psychiatry</em> (2021).{' '}
+      <a
+        href="https://doi.org/10.1038/s41398-020-01103-x"
+        rel="noopener"
+        class="underline underline-offset-2 hover:text-signal-bright"
+      >
+        CC BY 4.0
+      </a>
+    </figcaption>
+  </figure>
+
+  <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) pb-(--spacing-section) pt-10">
     <!-- Controls. Without JS the search and filters are hidden (they would do
          nothing) and the full list renders as a plain, complete bibliography.
 
