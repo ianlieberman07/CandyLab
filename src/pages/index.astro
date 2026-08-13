@@ -323,21 +323,27 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
     object-position: center 42%;
   }
 
-  /* Wide: the picture is the whole field, and the subject sits right of the
-     type with equal air on both sides of it.
+  /* Wide: the picture is the whole field, and the subject's centre is pinned
+     to 73% of the viewport width — the position read off the composition the
+     client approved — at EVERY size, not just the one it was tuned on.
 
-     Two controls do this together. The subject is composited at 60% of the
-     canvas width rather than centred (SUBJECT_X in scripts/make-banner.mjs) —
-     centring it left only 29px between the heading and the brain against 275px
-     of empty ground beyond, which is what read as not-even. object-position
-     then fine-tunes: a LOWER percentage shows more of the canvas's left and
-     slides the subject rightward.
+     A fixed percentage cannot do that. With object-cover on a 2.4:1 canvas the
+     drawn width is 2.4x the section height, so a constant `28%` lands the
+     subject at 73% on one screen, 78% at MacBook-fullscreen, 64% on a wide
+     monitor: the exact "looks right here, wrong when I fullscreen" complaint.
 
-     28% was solved for, not guessed: it balances the two margins to within a
-     few pixels at 1442 and 1920, and stays close at 1280. */
+     So the x-offset is computed instead. Drawn width = 240svh; the subject's
+     centre sits at 60.2% of the canvas (measured); pinning it to 73vw gives
+
+        x = 73vw - 0.602 * 240svh = 73vw - 144.5svh
+
+     min(0px, …) stops the image's left edge pulling inside the viewport on
+     aspect ratios wider than ~2:1, where the formula would otherwise expose a
+     blank strip. The percentage fallback stays for engines without svh. */
   @media (min-width: 1024px) {
     .hero-media-img {
       object-position: 28% center;
+      object-position: min(0px, calc(73vw - 144.5svh)) center;
     }
   }
 </style>
