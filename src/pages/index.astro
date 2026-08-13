@@ -324,10 +324,15 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   /* Wide: the picture is the whole field, and the subject moves right to clear
-     the type. */
+     the type.
+
+     Counter-intuitive direction — a LOWER percentage shows more of the canvas's
+     left, which slides the subject rightward in the viewport. At 12% the brain
+     sits around two thirds across at every width from 1280 up, with clear
+     ground still to its right so it does not read as pushed against the edge. */
   @media (min-width: 1024px) {
     .hero-media-img {
-      object-position: 30% center;
+      object-position: 12% center;
     }
   }
 </style>
