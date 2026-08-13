@@ -43,6 +43,13 @@
   --color-navy: #0e1c2b;
   --color-navy-raised: #17293c;
 
+  /* — The first screen's ground. Sampled from the hero photograph's own
+       studio background (#f9fafb across its top and middle), so the picture
+       sits on an exact match rather than an approximation and has no edge to
+       show. If the hero image is ever replaced, re-sample and change this one
+       value — scripts/make-hero-cutout.mjs prints it. — */
+  --color-hero-ground: #f9fafb;
+
   /* — Institutional nod only: never the primary palette.
        Pending UCLA brand review (DOCS/QUESTIONS.md). — */
   --color-ucla-blue: #2774ae;

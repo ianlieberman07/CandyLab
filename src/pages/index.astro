@@ -77,59 +77,81 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       the band, so on every viewport they are above the fold — people arrive
       having been given a person's name, not an acronym. `min-h-svh`, not vh:
       on a phone, vh pretends the browser chrome is retracted. */}
-  <section class="hero relative flex min-h-svh flex-col overflow-hidden pt-[clamp(5.5rem,11vh,7.5rem)]">
+  <section
+    class="hero relative flex min-h-svh flex-col justify-center px-(--spacing-gutter) pb-[clamp(2rem,5vh,3.5rem)] pt-[clamp(5.5rem,12vh,8rem)]"
+  >
+    {/* Side by side, because the subject is vertical. A brain with threads
+        hanging from it is a portrait composition; laying it into a wide short
+        band left it 260px tall in a 1429px space. The type takes the width, the
+        picture takes the height.
+
+        This arrangement was rejected twice before because the photograph's edge
+        showed against the page. That is now solved at the source rather than
+        with CSS: the file is feathered to transparency on every edge, and the
+        page is painted the exact ground colour it was shot against
+        (--color-hero-ground). There is no boundary left to disguise. */}
     <div
-      class="mx-auto flex w-full max-w-[104rem] flex-col items-center px-(--spacing-gutter) pb-[clamp(2rem,4.5vh,3.5rem)] text-center"
+      class:list={[
+        'mx-auto flex w-full max-w-[104rem] flex-col gap-10',
+        hero.image ? 'lg:flex-row lg:items-center lg:gap-14' : '',
+      ]}
     >
-      <p class="reveal text-eyebrow font-medium uppercase text-signal">
-        {site.department} · {site.institution}
-      </p>
+      <div class="flex-1">
+        <p class="reveal text-eyebrow font-medium uppercase text-signal">
+          {site.department} · {site.institution}
+        </p>
 
-      <h1
-        class="reveal-words mt-5 max-w-[24ch] font-display text-display text-ink"
-        data-reveal-delay="90"
-        set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
-      />
+        <h1
+          class="reveal-words mt-6 max-w-[15ch] font-display text-hero text-ink"
+          data-reveal-delay="90"
+          set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
+        />
 
-      <p class="reveal mt-5 max-w-[54ch] text-lede text-ink-dim" data-reveal-delay="380">
-        {site.tagline}
-      </p>
+        <p class="reveal mt-6 max-w-[44ch] text-lede text-ink-dim" data-reveal-delay="380">
+          {site.tagline}
+        </p>
 
-      <p class="reveal mt-6 flex flex-wrap items-baseline justify-center gap-x-3" data-reveal-delay="480">
-        <span class="text-eyebrow font-medium uppercase text-ink-muted">Directed by</span>
-        <span class="font-display text-[1.5rem] leading-tight text-ink">{site.director}</span>
-      </p>
+        <p
+          class="reveal mt-7 flex flex-wrap items-baseline gap-x-3"
+          data-reveal-delay="480"
+        >
+          <span class="text-eyebrow font-medium uppercase text-ink-muted">Directed by</span>
+          <span class="font-display text-[1.5rem] leading-tight text-ink">{site.director}</span>
+        </p>
 
-      <div
-        class="reveal mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-[0.95rem]"
-        data-reveal-delay="560"
-      >
-        <a href={`mailto:${site.contact.email}`} class="link-rule">{site.contact.email}</a>
-        <a href="/participate" class="link-rule">Take part in a study</a>
-        <a href="/research" class="link-rule">Our research</a>
-      </div>
-    </div>
-
-    {
-      hero.image && (
-        <div class="reveal-media relative min-h-[16rem] flex-1 overflow-hidden" data-reveal-delay="260">
-          <Image
-            src={hero.image}
-            alt={hero.alt}
-            widths={[1440, 2160, Math.min(hero.image.width, 2880)]}
-            sizes="100vw"
-            loading="eager"
-            fetchpriority="high"
-            class="absolute inset-0 h-full w-full object-cover"
-            style="object-position: center 32%"
-          />
-          {/* object-position 32%: when the band is shorter than the image's
-              natural aspect, the crop gives up floor rather than the brain, and
-              the threads run off the bottom edge — reaching below the page,
-              which is the image's own idea. */}
+        <div
+          class="reveal mt-7 flex flex-wrap items-center gap-x-9 gap-y-3 text-[0.95rem]"
+          data-reveal-delay="560"
+        >
+          <a href={`mailto:${site.contact.email}`} class="link-rule">{site.contact.email}</a>
+          <a href="/participate" class="link-rule">Take part in a study</a>
+          <a href="/research" class="link-rule">Our research</a>
         </div>
-      )
-    }
+      </div>
+
+      {
+        hero.image && (
+          <div
+            class="reveal-media flex shrink-0 justify-center lg:w-[42%]"
+            data-reveal-delay="260"
+          >
+            {/* Height-bounded, not width-bounded: the picture is tall, and it is
+                the vertical room that runs out first on a short laptop. At
+                66vh on an 820px screen it renders ~433px wide from a 1920px
+                file — comfortably inside native resolution. */}
+            <Image
+              src={hero.image}
+              alt={hero.alt}
+              widths={[480, 720, Math.min(hero.image.width, 1080)]}
+              sizes="(min-width: 1024px) 42vw, 92vw"
+              loading="eager"
+              fetchpriority="high"
+              class="h-auto max-h-[52vh] w-auto max-w-full object-contain lg:max-h-[66vh]"
+            />
+          </div>
+        )
+      }
+    </div>
   </section>
 
   {/* ── About ───────────────────────────────────────────────── */}
@@ -270,7 +292,9 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
 </Base>
 
 <style>
+  /* Matched to the hero photograph's own studio ground, so the picture has no
+     edge against the page. See --color-hero-ground in global.css. */
   .hero {
-    background-color: var(--color-paper-raised);
+    background-color: var(--color-hero-ground);
   }
 </style>
