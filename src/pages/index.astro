@@ -318,9 +318,25 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
     background-color: var(--color-hero-ground);
   }
 
-  /* Phone: the band is short and wide, so centre the subject in it. */
+  /* Phone: the picture is a band under the type, and the subject should sit in
+     the middle of it.
+
+     `center` does NOT do that. The subject is composited at 60.2% of the canvas
+     (off-centre on purpose, so it clears the type on a wide screen), so showing
+     the canvas's middle puts it noticeably right of centre in the band.
+
+     Same arithmetic as the desktop rule, solved for 50vw instead of 73vw. The
+     band is 34svh tall and the canvas is 2.4:1, so its drawn width is
+     2.4 x 34svh = 81.6svh, and the subject's centre sits at 0.602 of that:
+
+        x = 50vw - 0.602 * 81.6svh = 50vw - 49.1svh
+
+     The min()/max() pair clamps x to the range the image can actually be
+     offset by — never past its own left edge, never so far that a blank strip
+     appears on the right. */
   .hero-media-img {
     object-position: center 42%;
+    object-position: max(calc(100vw - 81.6svh), min(0px, calc(50vw - 49.1svh))) center;
   }
 
   /* Wide: the picture is the whole field, and the subject's centre is pinned
