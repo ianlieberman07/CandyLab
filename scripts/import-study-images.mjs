@@ -45,8 +45,12 @@ const STUDIES = {
     'Repeating concentric ripples drawn in fine white sand, seen from above.',
   ],
   mica: [
-    'two_bone-white_sculptural_forms',
-    'Two bone-white sculptural forms of the same shape at different sizes, the smaller beside the larger.',
+    // Deliberately 'brains', not 'forms'. The first attempt asked for abstract
+    // forms and produced ceramics — nothing said mother and daughter. Two
+    // brains at different scales reads as a pair, and ties the study to the
+    // hero image.
+    'sculptural_brains_of_the_same_shap',
+    'Two bone-white sculptural brains of the same shape at different sizes, resting together.',
   ],
   enigma: [
     'dozens_of_small_identical_bone-white',

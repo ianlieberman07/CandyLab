@@ -4,7 +4,7 @@ order: 70
 status: 'Data analysis stage'
 summary: 'Daughters of depressed mothers are at higher-risk for developing major depressive disorder by early adulthood. To develop more targeted early identification and prevention efforts for this HR…'
 hero: ./images/mica-cover.jpg
-heroAlt: 'Two bone-white sculptural forms of the same shape at different sizes, the smaller beside the larger.'
+heroAlt: 'Two bone-white sculptural brains of the same shape at different sizes, resting together.'
 needsReview: false
 ---
 
