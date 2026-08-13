@@ -69,24 +69,23 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       Sized with `min-h-svh` rather than `vh`: on a phone, `vh` measures the
       viewport as if the browser chrome were retracted, which pushes the last
       line under the address bar on first paint. */}
-  <section
-    class="relative flex min-h-svh flex-col justify-between border-b border-ink/10 bg-paper-raised px-(--spacing-gutter) pb-[clamp(2.5rem,5vh,3.5rem)] pt-[clamp(6rem,14vh,10rem)]"
-  >
-    {/* The lab photograph sits BESIDE the type, never behind it. Text over a
-        group photograph means either an unreadable heading or a veil heavy
-        enough that you cannot make out anyone's face — and the faces are the
-        entire point of this picture.
+  {/* The image is part of the page, not an object sitting on it.
 
-        One grid, one <Image>: the picture is a real column on a wide screen and
-        stacks under the heading on a narrow one. Rendering it twice and hiding
-        one by breakpoint would download both. */}
-    <div
-      class:list={[
-        'mx-auto grid w-full max-w-[104rem] items-center gap-10',
-        hero.image ? 'lg:grid-cols-[1.15fr_1fr] lg:gap-16' : '',
-      ]}
-    >
-      <div>
+      Three things were making it read as pasted-on: a hard rectangle edge, a
+      gutter of white on every side, and a visible seam where the photograph's
+      own background met the page. So the picture now runs off the edge of the
+      viewport, carries no border, and is dissolved into the page along the one
+      edge that faces the type. Nothing is cropped into meaninglessness because
+      the dissolve happens over empty ground, not over the subject.
+
+      One <Image>, repositioned by breakpoint: full-bleed under the type on a
+      phone, a bled column beside it on a wide screen. Rendering it twice and
+      hiding one would download both. */}
+  <section
+    class="hero relative flex min-h-svh flex-col justify-between overflow-hidden px-(--spacing-gutter) pb-[clamp(2.5rem,5vh,3.5rem)] pt-[clamp(6rem,14vh,10rem)]"
+  >
+    <div class="mx-auto w-full max-w-[104rem]">
+      <div class="relative z-10 lg:max-w-[58%]">
         <p class="reveal text-eyebrow font-medium uppercase text-signal">
           {site.department} · {site.institution}
         </p>
@@ -107,25 +106,38 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
 
       {
         hero.image && (
-          <figure class="reveal-media overflow-hidden" data-reveal-delay="260">
+          <div
+            class="reveal-media hero-media relative -mx-(--spacing-gutter) mt-9 h-[38vh] overflow-hidden lg:absolute lg:inset-y-0 lg:right-0 lg:z-0 lg:m-0 lg:h-auto lg:w-[54%]"
+            data-reveal-delay="260"
+          >
             <Image
               src={hero.image}
               alt={hero.alt}
-              widths={[560, 840, 1200]}
-              sizes="(min-width: 1024px) 42vw, 92vw"
+              widths={[480, 720, Math.min(hero.image.width, 1200)]}
+              sizes="(min-width: 1024px) 54vw, 100vw"
               loading="eager"
               fetchpriority="high"
-              class="h-full w-full object-cover"
+              class="h-full w-full object-cover object-bottom"
             />
-          </figure>
+            {/* The dissolve. Left edge on a wide screen so the picture reaches
+                toward the heading and stops without a line; top edge on a phone
+                so it emerges from the text rather than butting against it. */}
+            <div class="hero-fade absolute inset-0" />
+          </div>
         )
       }
     </div>
 
-    <div class="mx-auto mt-[clamp(2.5rem,6vh,4rem)] w-full max-w-[104rem]">
-      <div class="reveal-rule h-px w-full bg-ink/15" data-reveal-delay="520"></div>
+    {/* Constrained to the text column on a wide screen. Run full width and the
+        rule draws a line straight across the photograph, which is exactly the
+        pasted-on look the bleed was meant to remove. */}
+    <div class="relative z-10 mx-auto mt-[clamp(2.5rem,6vh,4rem)] w-full max-w-[104rem] lg:max-w-[104rem]">
+      <div class="reveal-rule h-px w-full bg-ink/15 lg:w-[50%]" data-reveal-delay="520"></div>
+      {/* Left-aligned rather than spread. `justify-between` pushed the contact
+          links out to the column edge, where they landed on the photograph and
+          lost their contrast. */}
       <div
-        class="reveal mt-7 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+        class="reveal mt-7 flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-12 lg:w-[50%]"
         data-reveal-delay="600"
       >
         <div>
@@ -276,3 +288,49 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
     )
   }
 </Base>
+
+<style>
+  .hero {
+    background-color: var(--color-paper-raised);
+  }
+
+  /* The dissolve is a wash of the PAGE's own colour laid over the picture, not
+     a colour sampled from the picture. That way it stays correct whatever image
+     is loaded from the admin — a photograph with a dark ground, a pale one, a
+     generated one — instead of matching exactly one file and seaming on every
+     other.
+
+     On a phone the picture sits under the type, so it is feathered along its
+     top edge and emerges from the text. */
+  .hero-fade {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-paper-raised) 0%,
+      rgb(255 255 255 / 0.55) 14%,
+      transparent 42%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    /* On a wide screen it is a column bled off the right edge, so the dissolve
+       moves to the left edge — the one facing the heading — and the top and
+       bottom are softened where they meet the header and the section below. */
+    .hero-fade {
+      background-image:
+        linear-gradient(
+          to right,
+          var(--color-paper-raised) 0%,
+          rgb(255 255 255 / 0.86) 12%,
+          rgb(255 255 255 / 0.35) 30%,
+          transparent 54%
+        ),
+        linear-gradient(
+          to bottom,
+          var(--color-paper-raised) 0%,
+          transparent 15%,
+          transparent 82%,
+          rgb(255 255 255 / 0.85) 100%
+        );
+    }
+  }
+</style>

@@ -49,16 +49,22 @@ const header = getHeader('publications');
 
       Nothing else on this site is licensed this way; see DOCS/QUESTIONS.md for
       which of the 92 papers can and cannot be reused. */}
-  <figure class="border-y border-ink/10 bg-navy">
-    <Image
-      src={brainNetworks}
-      alt="Nine brain slices showing default mode and salience network activation in orange, yellow and green on black."
-      widths={[900, 1400, 2320]}
-      sizes="100vw"
-      loading="lazy"
-      class="h-auto w-full"
-    />
-    <figcaption class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-4 text-[0.78rem] leading-relaxed text-paper/55">
+  {/* The band is the figure's own black, not the site navy. The imaging was
+      published on black, and any other ground puts a visible rectangle inside a
+      rectangle — the same pasted-on look the page headers just lost. Matching
+      it makes the plate read as one continuous dark field. */}
+  <figure class="bg-black py-12 md:py-16">
+    <div class="mx-auto max-w-[74rem] px-(--spacing-gutter)">
+      <Image
+        src={brainNetworks}
+        alt="Brain slices showing default mode and salience network activation in orange, yellow and green on black, labelled by network."
+        widths={[720, 1100, 1600]}
+        sizes="(min-width: 1200px) 70rem, 92vw"
+        loading="lazy"
+        class="h-auto w-full"
+      />
+    </div>
+    <figcaption class="mx-auto mt-8 max-w-[74rem] px-(--spacing-gutter) text-[0.78rem] leading-relaxed text-paper/55">
       Default mode and salience network alterations in adolescents with depression. Ho TC, Walker
       JC, Teresi GI, Kulla A, Kirshenbaum JS, Gifuni AJ, Singh MK, Gotlib IH.{' '}
       <em>Translational Psychiatry</em> (2021).{' '}

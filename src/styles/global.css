@@ -508,6 +508,37 @@
     border-bottom-color: rgb(14 28 43 / 0.1);
   }
 
+  /* Where the header floats over a full-bleed image, the navigation has to stay
+     legible over whatever is behind it. Measured against the home page's
+     photograph, the links ran as low as 1.9:1 — nowhere near AA.
+
+     A scrim rather than darker link text, because darker text only fixes the
+     images we happen to have today: the client can upload any photograph she
+     likes from the admin, and this holds for all of them. It fades out well
+     before the subject, so it reads as light falling across the top of the
+     picture rather than as a bar. */
+  .site-header[data-transparent]::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 11rem;
+    pointer-events: none;
+    z-index: -1;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.95) 0%,
+      rgb(255 255 255 / 0.78) 42%,
+      rgb(255 255 255 / 0.32) 72%,
+      transparent 100%
+    );
+    transition: opacity 0.5s var(--ease-out-soft);
+  }
+  /* Once the header has earned its own blurred ground the scrim is redundant,
+     and leaving it on doubles the wash. */
+  .site-header[data-transparent][data-scrolled]::before {
+    opacity: 0;
+  }
+
   /* Mobile disclosure panel. `details` gives the whole thing for free without
      JavaScript; this only animates the panel once it is open. */
   details[open] > .nav-panel {

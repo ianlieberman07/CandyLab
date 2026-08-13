@@ -3,8 +3,8 @@
   {
    "key": "home",
    "label": "Home",
-   "image": "./pages/images/art/cover-contours.jpg",
-   "alt": "An abstract contour map in teal and ink on a pale ground, like the height map of a folded surface."
+   "image": "./pages/images/covers/home-brain.jpg",
+   "alt": "A bone-white sculptural model of a brain suspended above a pale surface, with fine red threads descending from its underside and gathering below."
   },
   {
    "key": "research",

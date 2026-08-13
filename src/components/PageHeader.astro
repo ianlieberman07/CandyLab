@@ -7,7 +7,7 @@ interface Props {
   eyebrow: string;
   title: string;
   lede?: string;
-  /** Optional image beside the title. */
+  /** Optional image. Bled off the page edge, or panelled if it is small. */
   image?: ImageMetadata;
   imageAlt?: string;
 }
@@ -16,21 +16,29 @@ const { eyebrow, title, lede, image, imageAlt } = Astro.props;
 // Wrappers only — the heading text is untouched. See utils/splitWords.ts.
 const titleHtml = splitWords(title);
 
-// Several of the study images are small logos and figures (the smallest is
-// 255px wide). On a light ground they can sit in a card at their own size
-// rather than being stretched across a hero — nothing here is ever displayed
-// above its native resolution.
+// Two honest treatments rather than one compromise.
+//
+// A photograph is bled off the edge of the viewport and dissolved into the page
+// along the edge that faces the type, so it reads as part of the page. A framed
+// rectangle floating in a gutter of white reads as a stock image someone
+// pasted in — which is exactly what it looks like.
+//
+// A small image is a different object: several of the study images are logos,
+// the smallest 255px wide. Those get a panel and sit at their own size. Bleeding
+// a logo across half the screen would mean upscaling it into mush.
 const isSmall = image ? image.width < 700 : false;
+const bleed = Boolean(image) && !isSmall;
 ---
 
-<header class="border-b border-ink/10 bg-paper-raised">
+<header class="page-header relative overflow-hidden bg-paper-raised">
   <div
     class:list={[
-      'mx-auto grid max-w-[104rem] gap-12 px-(--spacing-gutter) pb-16 pt-16 md:pb-20 md:pt-24',
-      image ? 'lg:grid-cols-[1.35fr_1fr] lg:items-center lg:gap-20' : '',
+      'mx-auto max-w-[104rem] px-(--spacing-gutter) pt-16 md:pt-24',
+      bleed ? 'pb-16 md:pb-24' : 'pb-16 md:pb-20',
+      isSmall ? 'lg:grid lg:grid-cols-[1.35fr_1fr] lg:items-center lg:gap-20' : '',
     ]}
   >
-    <div>
+    <div class:list={['relative z-10', bleed ? 'lg:max-w-[56%]' : '']}>
       <p class="reveal text-eyebrow font-medium uppercase text-signal">{eyebrow}</p>
       <h1
         class="reveal-words mt-6 max-w-[20ch] font-display text-display text-ink"
@@ -50,35 +58,87 @@ const isSmall = image ? image.width < 700 : false;
     </div>
 
     {
-      image && (
+      isSmall && image && (
         <figure
-          class:list={[
-            'reveal-media overflow-hidden border border-ink/10 bg-paper',
-            isSmall ? 'flex items-center justify-center p-10' : '',
-          ]}
+          class="reveal-media mt-12 flex items-center justify-center border border-ink/10 bg-paper p-10 lg:mt-0"
           data-reveal-delay="220"
         >
-          {/* The heading beside it already names the study, so the picture adds
-              nothing a screen reader needs to hear twice — unless the client has
-              written a real description, in which case that wins.
-
-              This comment sits OUTSIDE the tag deliberately: a block comment
-              placed between attributes is parsed as attributes, and each of its
-              words ships as a junk boolean attribute. It also swallows the
-              `alt` that follows it. */}
           <Image
             src={image}
             alt={imageAlt || ''}
-            widths={isSmall ? [image.width] : [480, 800, 1200]}
-            sizes={isSmall ? `${image.width}px` : '(min-width: 1024px) 40vw, 92vw'}
+            widths={[image.width]}
+            sizes={`${image.width}px`}
             loading="eager"
-            fetchpriority="high"
-            class:list={[
-              isSmall ? 'h-auto w-auto max-w-full' : 'h-full w-full object-cover',
-            ]}
+            class="h-auto w-auto max-w-full"
           />
         </figure>
       )
     }
   </div>
+
+  {
+    bleed && image && (
+      <div
+        class="reveal-media page-header-media relative -mt-4 h-[34vh] overflow-hidden lg:absolute lg:inset-y-0 lg:right-0 lg:m-0 lg:h-auto lg:w-[48%]"
+        data-reveal-delay="220"
+      >
+        {/* The heading beside it already names the page, so an atmospheric
+            picture adds nothing a screen reader needs to hear twice — unless
+            the client has written a real description, in which case it wins.
+
+            Comment outside the tag: a block comment between attributes is
+            parsed AS attributes and swallows the one after it. */}
+        <Image
+          src={image}
+          alt={imageAlt || ''}
+          widths={[480, 800, Math.min(image.width, 1400)]}
+          sizes="(min-width: 1024px) 48vw, 100vw"
+          loading="eager"
+          fetchpriority="high"
+          class="h-full w-full object-cover"
+        />
+        <div class="page-header-fade absolute inset-0" />
+      </div>
+    )
+  }
 </header>
+
+<style>
+  /* The dissolve is a wash of the PAGE's colour over the picture, never a
+     colour sampled from it — so it stays correct for whatever the client
+     uploads next rather than matching one file and seaming on every other.
+
+     Phone: the picture sits under the type, so it is feathered along its top
+     edge and emerges from the text. */
+  .page-header-fade {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-paper-raised) 0%,
+      rgb(255 255 255 / 0.5) 12%,
+      transparent 38%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    /* Wide: a column bled off the right edge, dissolved on the left where it
+       faces the heading, and softened top and bottom where it meets the
+       navigation above and the section below. */
+    .page-header-fade {
+      background-image:
+        linear-gradient(
+          to right,
+          var(--color-paper-raised) 0%,
+          rgb(255 255 255 / 0.84) 14%,
+          rgb(255 255 255 / 0.3) 34%,
+          transparent 58%
+        ),
+        linear-gradient(
+          to bottom,
+          rgb(255 255 255 / 0.7) 0%,
+          transparent 18%,
+          transparent 80%,
+          rgb(255 255 255 / 0.8) 100%
+        );
+    }
+  }
+</style>
