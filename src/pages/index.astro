@@ -61,104 +61,75 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   transparentHeader
 >
   {/* ── First screen ──────────────────────────────────────────
-      The lab's name AND the director's name are both above the fold, at every
-      width — people arrive having been given a person's name, not an acronym.
-      The contact address is here too, so it is reachable in one action from
-      the landing page.
+      Centred type, then the photograph as a full-width band anchored to the
+      fold. Chosen over two tested alternatives (see git history): a full-screen
+      image collides with the heading and takes over the site's colour world,
+      and a keyed cutout carries visible damage from the source's shadowed edge.
 
-      Sized with `min-h-svh` rather than `vh`: on a phone, `vh` measures the
-      viewport as if the browser chrome were retracted, which pushes the last
-      line under the address bar on first paint. */}
-  {/* Centred type, then the picture as a plate beneath it.
+      The band asset is the photograph EXTENDED, not cropped: its ground is a
+      gradient (#8ba19e→#507474), so scripts/make-banner.mjs rebuilds it on a
+      2880px canvas painted with the image's own sampled gradient and feathers
+      the original into the middle. One file, seamless edge to edge — nothing
+      for CSS to colour-match, so nothing to drift out of sync. At 2880px the
+      brain renders at native resolution on a 2x display at full width.
 
-      The previous two attempts tried to make the photograph dissolve into the
-      page. That was the wrong instinct: what read as "pasted on" was not the
-      fact of an edge, it was the picture looking accidental — floating in a
-      gutter, at a size nobody chose, cut by a rule, with the navigation
-      illegible across it.
-
-      An image that is obviously, deliberately placed does not need to hide its
-      edges. So it is centred on the same axis as the type, held to a width the
-      file can actually be sharp at, and captioned — a plate in a book. The
-      caption is what turns a picture into a statement, and it is the one thing
-      that was missing when the image "didn't say anything".
-
-      Sized at 30rem: the source is 960px wide, so at 480 CSS px it still has
-      two device pixels per CSS pixel on a retina screen. Anything wider is
-      visibly soft, which is what it was. */}
-  <section
-    class="hero relative flex min-h-svh flex-col justify-between overflow-hidden px-(--spacing-gutter) pb-[clamp(2.5rem,5vh,3.5rem)] pt-[clamp(5rem,12vh,8rem)]"
-  >
+      The lab's name, the director's name and the contact links all sit above
+      the band, so on every viewport they are above the fold — people arrive
+      having been given a person's name, not an acronym. `min-h-svh`, not vh:
+      on a phone, vh pretends the browser chrome is retracted. */}
+  <section class="hero relative flex min-h-svh flex-col overflow-hidden pt-[clamp(5.5rem,11vh,7.5rem)]">
     <div
-      class:list={[
-        'mx-auto flex w-full max-w-[104rem] flex-1 flex-col justify-center gap-12',
-        hero.image ? 'lg:flex-row lg:items-center lg:gap-20' : '',
-      ]}
+      class="mx-auto flex w-full max-w-[104rem] flex-col items-center px-(--spacing-gutter) pb-[clamp(2rem,4.5vh,3.5rem)] text-center"
     >
-      <div class="flex-1">
-        <p class="reveal text-eyebrow font-medium uppercase text-signal">
-          {site.department} · {site.institution}
-        </p>
+      <p class="reveal text-eyebrow font-medium uppercase text-signal">
+        {site.department} · {site.institution}
+      </p>
 
-        <h1
-          class="reveal-words mt-6 max-w-[15ch] font-display text-hero text-ink"
-          data-reveal-delay="90"
-          set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
-        />
+      <h1
+        class="reveal-words mt-5 max-w-[24ch] font-display text-display text-ink"
+        data-reveal-delay="90"
+        set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
+      />
 
-        <p class="reveal mt-6 max-w-[46ch] text-lede text-ink-dim" data-reveal-delay="420">
-          {site.tagline}
-        </p>
+      <p class="reveal mt-5 max-w-[54ch] text-lede text-ink-dim" data-reveal-delay="380">
+        {site.tagline}
+      </p>
 
-        {/* The director's name belongs beside the lab's, not orphaned at the
-            foot of the screen. It was down there competing with a portrait
-            image for the last hundred pixels above the fold, and on a short
-            laptop the image won — which is the one thing that must not happen:
-            people arrive having been given a person's name, not an acronym. */}
-        <p class="reveal mt-8 flex flex-wrap items-baseline gap-x-3" data-reveal-delay="500">
-          <span class="text-eyebrow font-medium uppercase text-ink-muted">Directed by</span>
-          <span class="font-display text-[1.6rem] leading-tight text-ink">{site.director}</span>
-        </p>
-      </div>
+      <p class="reveal mt-6 flex flex-wrap items-baseline justify-center gap-x-3" data-reveal-delay="480">
+        <span class="text-eyebrow font-medium uppercase text-ink-muted">Directed by</span>
+        <span class="font-display text-[1.5rem] leading-tight text-ink">{site.director}</span>
+      </p>
 
-      {
-        hero.image && (
-          <figure
-            class="reveal-media w-full shrink-0 sm:max-w-[26rem] lg:max-w-[30rem]"
-            data-reveal-delay="260"
-          >
-            <Image
-              src={hero.image}
-              alt={hero.alt}
-              widths={[360, 480, Math.min(hero.image.width, 960)]}
-              sizes="(min-width: 1024px) 30rem, (min-width: 640px) 26rem, 92vw"
-              loading="eager"
-              fetchpriority="high"
-              class="h-auto w-full"
-            />
-            {/* Says what the picture is. Without a caption the image is
-                decoration nobody can read — which is exactly how it landed. With
-                one, it states the lab's subject in a line. */}
-            <figcaption class="mt-4 max-w-[34ch] text-[0.82rem] leading-relaxed text-ink-muted">
-              Inflammation reaching the developing brain — the link this lab
-              studies in adolescent depression.
-            </figcaption>
-          </figure>
-        )
-      }
-    </div>
-
-    <div class="relative z-10 mx-auto mt-[clamp(2rem,5vh,3rem)] w-full max-w-[104rem]">
-      <div class="reveal-rule h-px w-full bg-ink/15" data-reveal-delay="520"></div>
       <div
-        class="reveal mt-6 flex flex-wrap items-center gap-x-10 gap-y-3 text-[0.95rem]"
-        data-reveal-delay="600"
+        class="reveal mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-[0.95rem]"
+        data-reveal-delay="560"
       >
         <a href={`mailto:${site.contact.email}`} class="link-rule">{site.contact.email}</a>
         <a href="/participate" class="link-rule">Take part in a study</a>
         <a href="/research" class="link-rule">Our research</a>
       </div>
     </div>
+
+    {
+      hero.image && (
+        <div class="reveal-media relative min-h-[16rem] flex-1 overflow-hidden" data-reveal-delay="260">
+          <Image
+            src={hero.image}
+            alt={hero.alt}
+            widths={[1440, 2160, Math.min(hero.image.width, 2880)]}
+            sizes="100vw"
+            loading="eager"
+            fetchpriority="high"
+            class="absolute inset-0 h-full w-full object-cover"
+            style="object-position: center 32%"
+          />
+          {/* object-position 32%: when the band is shorter than the image's
+              natural aspect, the crop gives up floor rather than the brain, and
+              the threads run off the bottom edge — reaching below the page,
+              which is the image's own idea. */}
+        </div>
+      )
+    }
   </section>
 
   {/* ── About ───────────────────────────────────────────────── */}
