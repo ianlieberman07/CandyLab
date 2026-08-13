@@ -10,6 +10,11 @@
  *
  * Canvas is 2880px so that at a 1440-CSS-px viewport on a 2x display the
  * brain renders at its native 960px — sharp, not upscaled.
+ *
+ * SUBJECT_X places the subject horizontally within that canvas. Centring it
+ * turned out to be the wrong default for a hero: with the type occupying the
+ * left of the screen, a centred subject sits hard against the text with a large
+ * empty margin on the far side. Pushing it past centre balances the two.
  */
 import sharp from 'sharp';
 
@@ -19,6 +24,9 @@ const OUT = process.argv[3] ?? 'content/pages/images/covers/home-brain-band.jpg'
 // third at any viewport, leaving the left third as clean ground for the type
 // to sit on rather than over the brain.
 const CW = 5760, CH = 2400, IW = 1920, IH = 2400;
+// Fraction of the canvas width at which the subject's centre sits.
+const SUBJECT_X = Number(process.env.SUBJECT_X ?? 0.60);
+const INSET = Math.round(CW * SUBJECT_X - IW / 2);
 
 const img = sharp(SRC);
 
@@ -36,7 +44,7 @@ console.log('gradient stops:', stops.map((s) => s.hex).join(' '));
 // The canvas gradient: the image occupies the centre third, so its own left
 // tone continues left and its right tone continues right, with the sampled
 // ramp across the middle where the image sits.
-const inL = (CW - IW) / 2 / CW, inR = (CW + IW) / 2 / CW;
+const inL = INSET / CW, inR = (INSET + IW) / CW;
 const svgStops = [
   `<stop offset="0" stop-color="${stops[0].hex}"/>`,
   ...stops.map((s) => `<stop offset="${(inL + (inR - inL) * s.off).toFixed(4)}" stop-color="${s.hex}"/>`),
@@ -67,7 +75,7 @@ const fadedPng = await sharp(SRC)
   .toBuffer();
 
 await sharp(canvas)
-  .composite([{ input: fadedPng, left: (CW - IW) / 2, top: 0 }])
+  .composite([{ input: fadedPng, left: INSET, top: 0 }])
   .flatten()
   .jpeg({ quality: 90, mozjpeg: true })
   .toFile(OUT);

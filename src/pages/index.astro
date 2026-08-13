@@ -323,16 +323,21 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
     object-position: center 42%;
   }
 
-  /* Wide: the picture is the whole field, and the subject moves right to clear
-     the type.
+  /* Wide: the picture is the whole field, and the subject sits right of the
+     type with equal air on both sides of it.
 
-     Counter-intuitive direction — a LOWER percentage shows more of the canvas's
-     left, which slides the subject rightward in the viewport. At 12% the brain
-     sits around two thirds across at every width from 1280 up, with clear
-     ground still to its right so it does not read as pushed against the edge. */
+     Two controls do this together. The subject is composited at 60% of the
+     canvas width rather than centred (SUBJECT_X in scripts/make-banner.mjs) —
+     centring it left only 29px between the heading and the brain against 275px
+     of empty ground beyond, which is what read as not-even. object-position
+     then fine-tunes: a LOWER percentage shows more of the canvas's left and
+     slides the subject rightward.
+
+     28% was solved for, not guessed: it balances the two margins to within a
+     few pixels at 1442 and 1920, and stays close at 1280. */
   @media (min-width: 1024px) {
     .hero-media-img {
-      object-position: 12% center;
+      object-position: 28% center;
     }
   }
 </style>
