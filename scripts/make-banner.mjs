@@ -11,11 +11,14 @@
  * Canvas is 2880px so that at a 1440-CSS-px viewport on a 2x display the
  * brain renders at its native 960px — sharp, not upscaled.
  */
-import sharp from '/Users/ianlieberman/Documents/GitHub/CandyLab/node_modules/sharp/lib/index.js';
+import sharp from 'sharp';
 
-const SRC = '/Users/ianlieberman/Documents/GitHub/CandyLab/content/pages/images/covers/home-brain.jpg';
-const OUT = '/Users/ianlieberman/Documents/GitHub/CandyLab/content/pages/images/covers/home-brain-band.jpg';
-const CW = 2880, CH = 1200, IW = 960, IH = 1200;
+const SRC = process.argv[2] ?? 'content/pages/images/covers/home-brain.jpg';
+const OUT = process.argv[3] ?? 'content/pages/images/covers/home-brain-band.jpg';
+// Canvas 3x the source width: the subject then occupies roughly the middle
+// third at any viewport, leaving the left third as clean ground for the type
+// to sit on rather than over the brain.
+const CW = 5760, CH = 2400, IW = 1920, IH = 2400;
 
 const img = sharp(SRC);
 

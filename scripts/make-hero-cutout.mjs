@@ -1,66 +1,114 @@
-/* Prepare the white-ground hero photograph so it has no visible boundary.
+/* Key the hero photograph's studio ground to true transparency.
  *
- * Measured on the source (1920x2400): the ground is uniform #f9fafb across the
- * top and middle, and falls to ~#eceae9 along the bottom where the shadow sits.
- * The brain's own highlights reach 255, so a global white-point lift would
- * clip real detail out of the subject — the fix has to be geometric, not tonal.
+ * Why not just match the page colour to the photograph: the ground is not one
+ * colour. Measured across the frame it drifts between #f8f9f7 and #fafbfc, and
+ * it is not neutral — the green channel usually runs highest. Any single CSS
+ * colour is therefore wrong somewhere, which is visible as a faint patch where
+ * a large flat area meets the page.
  *
- * So: the flat ground is left exactly as it is and the PAGE is set to match it
- * (--color-hero-ground below), which is an exact match by construction rather
- * than an approximation. Every edge is then feathered to transparency, with a
- * long fade along the bottom that swallows the darker shadow region entirely
- * and leaves the threads dissolving into the page instead of stopping at a
- * rectangle.
+ * Why not a luminance threshold: the brain is bone-white and its highlights
+ * reach 255, identical to the ground. A global threshold eats holes in it.
  *
- * Output is PNG-with-alpha so it composites onto whatever colour the page is,
- * including if the client later changes it.
+ * So: a flood fill inward from the border. Ground is defined as "near-white,
+ * near-neutral, AND connected to the edge of the frame". The brain's bright
+ * highlights are enclosed by darker brain, so the fill never reaches them; the
+ * gaps between the threads are reached, because they open onto the border.
  *
- *   node scripts/make-hero-cutout.mjs <source.png>
+ * Edges are then softened by measuring how ground-like each surviving pixel is,
+ * so the cut has an anti-aliased boundary rather than a jagged one.
+ *
+ *   node scripts/make-hero-cutout.mjs <source.png> [output.png]
  */
 import sharp from 'sharp';
 import { basename } from 'node:path';
 
 const SRC = process.argv[2];
+const OUT = process.argv[3] ?? 'content/pages/images/covers/home-brain-cut.png';
 if (!SRC) {
-  console.error('usage: node scripts/make-hero-cutout.mjs <source-image>');
+  console.error('usage: node scripts/make-hero-cutout.mjs <source-image> [output]');
   process.exit(1);
 }
-const OUT = 'content/pages/images/covers/home-brain-cut.png';
 
-const { width: W, height: H } = await sharp(SRC).metadata();
+const { data, info } = await sharp(SRC).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+const { width: W, height: H, channels: C } = info;
 
-// Feather geometry, as fractions of each dimension. The bottom fade is long
-// because that is where the shadow gradient lives and where the threads want
-// to trail off; the others only need to kill a hard edge.
-const FADE = { top: 0.04, side: 0.05, bottom: 0.3 };
-const t = Math.round(H * FADE.top);
-const s = Math.round(W * FADE.side);
-const b = Math.round(H * FADE.bottom);
+// A pixel can be ground only if it is bright and close to neutral. The brain is
+// warm (r > b) and the threads are strongly red, so both fail the neutral test
+// even where they are bright.
+// Neutrality does the discriminating, not brightness. Measured: the ground's
+// channel spread is 2-3 levels anywhere in the frame, while the brain runs
+// 20+ (it is lit warm) and the threads far more. Brightness alone fails
+// because the ground darkens to ~233 at the bottom while the brain's
+// highlights reach 255 — the two ranges overlap, the chroma ranges do not.
+const MIN = 196; // darkest a ground pixel may be (covers the bottom shadow)
+const MAX_CHROMA = 8; // widest channel spread a ground pixel may have
+const idx = (x, y) => (y * W + x) * C;
+const isGroundish = (x, y) => {
+  const i = idx(x, y);
+  const r = data[i], g = data[i + 1], b = data[i + 2];
+  const lo = Math.min(r, g, b), hi = Math.max(r, g, b);
+  return lo >= MIN && hi - lo <= MAX_CHROMA;
+};
 
-// Alpha is the product of four independent edge ramps, so corners fall off
-// smoothly rather than in a hard L.
-const ramp = (d, len) => (len <= 0 ? 1 : Math.min(1, Math.max(0, d / len)));
-const smooth = (v) => v * v * (3 - 2 * v); // smoothstep: no visible banding
+// Flood fill from every border pixel that qualifies.
+const isGround = new Uint8Array(W * H);
+const queue = new Int32Array(W * H);
+let head = 0, tail = 0;
+const push = (x, y) => {
+  const p = y * W + x;
+  if (isGround[p] || !isGroundish(x, y)) return;
+  isGround[p] = 1;
+  queue[tail++] = p;
+};
+for (let x = 0; x < W; x++) { push(x, 0); push(x, H - 1); }
+for (let y = 0; y < H; y++) { push(0, y); push(W - 1, y); }
+while (head < tail) {
+  const p = queue[head++];
+  const x = p % W, y = (p / W) | 0;
+  if (x > 0) push(x - 1, y);
+  if (x < W - 1) push(x + 1, y);
+  if (y > 0) push(x, y - 1);
+  if (y < H - 1) push(x, y + 1);
+}
 
-const mask = Buffer.alloc(W * H);
+/* Alpha. Fully-filled ground is transparent. Everything else is opaque, except
+   pixels that are themselves ground-like and touch the fill — those are the
+   anti-aliased rim of the subject, and they get partial alpha scaled by how far
+   from the ground they are. Without this the cut has hard, stepped edges. */
+const alpha = Buffer.alloc(W * H, 255);
+const SOFT_FLOOR = 214; // below this, treat as fully subject
 for (let y = 0; y < H; y++) {
-  const fTop = smooth(ramp(y, t));
-  const fBottom = smooth(ramp(H - 1 - y, b));
   for (let x = 0; x < W; x++) {
-    const fLeft = smooth(ramp(x, s));
-    const fRight = smooth(ramp(W - 1 - x, s));
-    mask[y * W + x] = Math.round(255 * fTop * fBottom * fLeft * fRight);
+    const p = y * W + x;
+    if (isGround[p]) { alpha[p] = 0; continue; }
+    let touchesGround = false;
+    if (x > 0 && isGround[p - 1]) touchesGround = true;
+    else if (x < W - 1 && isGround[p + 1]) touchesGround = true;
+    else if (y > 0 && isGround[p - W]) touchesGround = true;
+    else if (y < H - 1 && isGround[p + W]) touchesGround = true;
+    if (!touchesGround) continue;
+    const i = idx(x, y);
+    const lum = Math.min(data[i], data[i + 1], data[i + 2]);
+    if (lum <= SOFT_FLOOR) continue;
+    alpha[p] = Math.round(255 * (1 - (lum - SOFT_FLOOR) / (255 - SOFT_FLOOR)));
   }
 }
 
-// No removeAlpha() first: on an already-3-channel image it is a no-op that
-// nonetheless makes joinChannel drop the mask silently, leaving a 3-channel
-// PNG with no alpha and no error.
+// One-pixel blur on the mask only: smooths the rim without touching colour.
+const softened = await sharp(alpha, { raw: { width: W, height: H, channels: 1 } })
+  .blur(0.6)
+  .raw()
+  .toBuffer();
+
+// NO removeAlpha() here. On an already-3-channel image it is a no-op that
+// nonetheless makes joinChannel drop the mask silently — no error, just a
+// 3-channel PNG with no transparency. (Reintroduced this once already.)
 await sharp(SRC)
-  .joinChannel(mask, { raw: { width: W, height: H, channels: 1 } })
+  .joinChannel(softened, { raw: { width: W, height: H, channels: 1 } })
   .png({ compressionLevel: 9 })
   .toFile(OUT);
 
+const kept = alpha.reduce((n, a) => n + (a > 0 ? 1 : 0), 0);
 const m = await sharp(OUT).metadata();
 console.log(`${basename(SRC)} -> ${OUT}`);
-console.log(`  ${m.width}x${m.height}, alpha=${m.hasAlpha}, exif=${m.exif ? 'PRESENT' : 'stripped'}`);
+console.log(`  ${m.width}x${m.height}  alpha=${m.hasAlpha}  subject=${((kept / (W * H)) * 100).toFixed(1)}% of frame`);
