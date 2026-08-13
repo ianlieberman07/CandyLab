@@ -2,8 +2,8 @@
 title: 'Women’s Affect, Variability, Endocrinology, and Stress (WAVES)'
 order: 60
 summary: 'WAVES is a dense-sampling project led by graduate student, Melanie Dratva, that focuses on the role of ovarian hormones dynamics on brain-derived neurotropic factors and mood health in typically…'
-hero: ./images/waves.jpg
-heroAlt: 'An abstract illustration of overlapping waves.'
+hero: ./images/waves-cover.jpg
+heroAlt: 'Repeating concentric ripples drawn in fine white sand, seen from above.'
 needsReview: false
 ---
 

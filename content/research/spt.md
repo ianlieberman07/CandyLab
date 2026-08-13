@@ -2,8 +2,8 @@
 title: 'Social Processing Task (SPT)'
 order: 50
 summary: 'How social information is processed, represented, and remembered in the brain has important implications for adolescent development and risk for depression. In this study, we are relating aspects of…'
-hero: ./images/spt.jpg
-heroAlt: 'Young people looking at their phones, seen from above.'
+hero: ./images/spt-cover.jpg
+heroAlt: 'Many overlapping translucent human profiles in teal, layered like panes of glass.'
 needsReview: false
 ---
 

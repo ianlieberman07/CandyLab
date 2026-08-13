@@ -2,8 +2,8 @@
 title: 'Barriers to Being on Antidepressants (BOBA) and Beliefs on Behaviors and Access to Social Media (BOBAS)'
 order: 40
 summary: 'The BOBA study comprises of focus groups and youth advisory boards to help researchers learn about the barriers that individuals who are historically underrepresented in biomedical research face with…'
-hero: ./images/boba.jpg
-heroAlt: 'An illustration of a group of young people in conversation.'
+hero: ./images/boba-cover.jpg
+heroAlt: 'An empty circle of pale chairs facing inward, seen from directly above.'
 needsReview: false
 ---
 

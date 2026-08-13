@@ -2,8 +2,8 @@
 title: 'Effortless Assessment Research System (TIGER EARS)'
 order: 20
 summary: 'MR imaging is currently not an accessible technology but smartphones are. EARS is a pioneering smartphone app that leverages data collected seamlessly from naturalistic phone usage (including social…'
-hero: ./images/tiger-ears.jpg
-heroAlt: 'A screenshot of the EARS smartphone app showing daily mood and usage summaries.'
+hero: ./images/tiger-ears-cover.jpg
+heroAlt: 'A smartphone lying face up, its glowing screen dissolving upward into fine points of light.'
 needsReview: false
 ---
 

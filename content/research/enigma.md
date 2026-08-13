@@ -2,8 +2,8 @@
 title: 'Enhancing Neuroimaging Genetics through Meta-Analysis (ENIGMA)'
 order: 80
 summary: 'Dr. Ho collaborates with researchers around the globe through the ENIGMA consortium to identify the effects of depression and stress on brain morphometry and to examine sex differences and…'
-hero: ./images/enigma.jpg
-heroAlt: 'A figure showing subcortical brain structures from the ENIGMA analyses.'
+hero: ./images/enigma-cover.jpg
+heroAlt: 'Dozens of identical small bone-white brain forms in an even grid, one of them lit in teal.'
 needsReview: false
 ---
 

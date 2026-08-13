@@ -3,8 +3,8 @@ title: 'Blood–Brain Barrier Response to Immune Disruption: Gateways to Emotion
 order: 30
 status: 'Coming soon'
 summary: 'In collaboration with Drs. Mike Irwin and Steve Cole at the UCLA Cousins Center for Psychoneuroimmunology, BRIDGE is a mechanistic study aimed at understanding how challenges to the immune system…'
-hero: ./images/bridge.jpg
-heroAlt: 'A diagram of the blood–brain barrier and the immune signals that cross it.'
+hero: ./images/bridge-cover.jpg
+heroAlt: 'A wall of translucent hexagonal cells with a single red droplet resting in one of them.'
 needsReview: false
 ---
 

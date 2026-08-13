@@ -2,8 +2,8 @@
 title: 'Teen Inflammation Glutamate Emotion Research (TIGER)'
 order: 10
 summary: 'The TIGER study seeks to understand the roles of inflammation and glutamate on behavioral and neural phenotypes of depression in adolescents. We use dried blood spot testing to estimate peripheral…'
-hero: ./images/tiger.jpg
-heroAlt: 'The TIGER study logo: a tiger illustration above the study name.'
+hero: ./images/tiger-cover.jpg
+heroAlt: 'A laboratory tube of dark red blood standing upright in a rack of empty clear tubes.'
 needsReview: false
 ---
 
