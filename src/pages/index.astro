@@ -7,6 +7,7 @@ import { site } from '../config';
 import { getHeader } from '../utils/headers';
 import { splitWords } from '../utils/splitWords';
 import galleryData from '../../content/gallery.json';
+import dividerImage from '../../content/pages/images/covers/home-divider.jpg';
 
 const hero = getHeader('home');
 
@@ -208,6 +209,28 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       </section>
     )
   }
+
+  {/* ── Interlude ───────────────────────────────────────────────
+      A full-width dark band between About and the studies — the licensed
+      Shutterstock photograph of open hands offering a constellation-brain.
+      The client asked for "sexy black" and this is where it lives: dark as
+      punctuation on a light site, exactly like the Publications plate.
+
+      The band's colour is the photograph's own edge tone, sampled uniform
+      #02131b on all four edges, so image and band are one continuous field —
+      the bounded-plate case of the blending rule. */}
+  <section class="reveal-media" style="background-color: #02131b" data-reveal-delay="120">
+    <figure class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-10 md:py-14">
+      <Image
+        src={dividerImage}
+        alt="Two open hands beneath a brain drawn in points of light, offering it upward."
+        widths={[640, 960, 1440]}
+        sizes="(min-width: 1024px) 44rem, 92vw"
+        loading="lazy"
+        class="mx-auto h-auto max-h-[72svh] w-auto max-w-full"
+      />
+    </figure>
+  </section>
 
   {/* ── Studies ─────────────────────────────────────────────── */}
   <section class="border-y border-ink/10 bg-paper-raised">

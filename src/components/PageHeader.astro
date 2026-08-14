@@ -17,8 +17,17 @@ interface Props {
    * face in frame. Editable per page from the admin.
    */
   imageFocus?: string;
+  /**
+   * Force the bounded-panel treatment for a full-size photograph.
+   * The bleed dissolves an image into the page with a wash of the page's own
+   * white — correct for photographs on pale grounds, and a milky mistake on a
+   * coloured one. A photograph with its own strong ground (the pink News
+   * image) belongs in a box instead: the client's rule is that an image may
+   * differ from the background when it sits in a deliberate panel.
+   */
+  imagePanel?: boolean;
 }
-const { eyebrow, title, lede, image, imageAlt, imageFocus } = Astro.props;
+const { eyebrow, title, lede, image, imageAlt, imageFocus, imagePanel = false } = Astro.props;
 
 // Wrappers only — the heading text is untouched. See utils/splitWords.ts.
 const titleHtml = splitWords(title);
@@ -34,7 +43,8 @@ const titleHtml = splitWords(title);
 // the smallest 255px wide. Those get a panel and sit at their own size. Bleeding
 // a logo across half the screen would mean upscaling it into mush.
 const isSmall = image ? image.width < 700 : false;
-const bleed = Boolean(image) && !isSmall;
+const panel = Boolean(image) && (isSmall || imagePanel);
+const bleed = Boolean(image) && !panel;
 ---
 
 <header class="page-header relative overflow-hidden bg-paper-raised">
@@ -42,7 +52,7 @@ const bleed = Boolean(image) && !isSmall;
     class:list={[
       'mx-auto max-w-[104rem] px-(--spacing-gutter) pt-16 md:pt-24',
       bleed ? 'pb-16 md:pb-24' : 'pb-16 md:pb-20',
-      isSmall ? 'lg:grid lg:grid-cols-[1.35fr_1fr] lg:items-center lg:gap-20' : '',
+      panel ? 'lg:grid lg:grid-cols-[1.35fr_1fr] lg:items-center lg:gap-20' : '',
     ]}
   >
     {/* No image: the type is centred. Left-set type exists to sit against a
@@ -74,18 +84,22 @@ const bleed = Boolean(image) && !isSmall;
     </div>
 
     {
-      isSmall && image && (
+      panel && image && (
         <figure
-          class="reveal-media mt-12 flex items-center justify-center border border-ink/10 bg-paper p-10 lg:mt-0"
+          class:list={[
+            'reveal-media mt-12 border border-ink/10 bg-paper lg:mt-0',
+            isSmall ? 'flex items-center justify-center p-10' : 'overflow-hidden',
+          ]}
           data-reveal-delay="220"
         >
           <Image
             src={image}
             alt={imageAlt || ''}
-            widths={[image.width]}
-            sizes={`${image.width}px`}
+            widths={isSmall ? [image.width] : [480, 800, Math.min(image.width, 1400)]}
+            sizes={isSmall ? `${image.width}px` : '(min-width: 1024px) 40vw, 92vw'}
             loading="eager"
-            class="h-auto w-auto max-w-full"
+            class:list={[isSmall ? 'h-auto w-auto max-w-full' : 'aspect-[3/2] h-auto w-full object-cover']}
+            style={!isSmall && imageFocus ? `object-position: ${imageFocus}` : undefined}
           />
         </figure>
       )
