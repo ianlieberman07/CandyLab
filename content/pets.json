@@ -1,11 +1,6 @@
 {
  "items": [
   {
-   "image": "./images/pets/pets-01.jpg",
-   "caption": "",
-   "alt": ""
-  },
-  {
    "image": "./images/pets/pets-02.jpg",
    "caption": "",
    "alt": ""

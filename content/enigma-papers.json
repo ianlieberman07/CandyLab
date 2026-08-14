@@ -1,0 +1,174 @@
+{
+ "papers": [
+  {
+   "id": 17,
+   "title": "Regional brain morphology and current antidepressant use: findings from 32 international cohorts from the ENIGMA Major Depressive Disorder Working Group",
+   "journal": "Molecular Psychiatry",
+   "year": 2025,
+   "doi": "https://doi.org/10.1038/s41380-025-03310-8",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 16,
+   "title": "Transdiagnostic alterations in white matter microstructure associated with suicidal thoughts and behaviours in the ENIGMA Suicidal Thoughts and Behaviours consortium",
+   "journal": "Translational Psychiatry",
+   "year": 2025,
+   "doi": "https://doi.org/10.1101/2024.11.07.24316876",
+   "free": "http://dx.doi.org/10.1101/2024.11.07.24316876",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 15,
+   "title": "Classification of major depressive disorder using vertex-wise brain sulcal depth, curvature, and thickness with a deep and a shallow learning model",
+   "journal": "Molecular Psychiatry",
+   "year": 2025,
+   "doi": "https://doi.org/10.1038/s41380-025-03273-w",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 14,
+   "title": "Shared and distinct alterations in brain structure of youth with internalizing or externalizing disorders: Findings from the ENIGMA Antisocial Behavior, ADHD, MDD, and Anxiety Working Groups",
+   "journal": "Biological Psychiatry",
+   "year": 2025,
+   "doi": "",
+   "free": "https://figshare.com/articles/journal_contribution/Shared_and_distinct_alterations_in_brain_structure_of_youth_with_internalizing_or_externalizing_disorders_Findings_from_the_ENIGMA_Antisocial_Behavior_ADHD_MDD_and_Anxiety_Working_Groups/30083095",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 13,
+   "title": "Multi-site benchmark classification of major depressive disorder using machine learning on cortical and subcortical measures",
+   "journal": "Scientific Reports",
+   "year": 2024,
+   "doi": "https://doi.org/10.1038/s41598-023-47934-8",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 12,
+   "title": "Subcortical Brain Alterations in Carriers of Genomic Copy Number Variants",
+   "journal": "American Journal of Psychiatry",
+   "year": 2023,
+   "doi": "https://doi.org/10.1176/appi.ajp.20220304",
+   "free": "https://escholarship.org/uc/item/14r2n1vs",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 11,
+   "title": "Concurrent validity and reliability of suicide risk assessment instruments: A meta-analysis of 20 instruments across 27 international cohorts",
+   "journal": "Neuropsychology",
+   "year": 2023,
+   "doi": "https://doi.org/10.1037/neu0000850",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 10,
+   "title": "Structural brain alterations associated with suicidal thoughts and behaviors in young people: results from 21 international studies from the ENIGMA Suicidal Thoughts and Behaviours consortium",
+   "journal": "Molecular Psychiatry",
+   "year": 2022,
+   "doi": "https://doi.org/10.1038/s41380-022-01734-0",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 9,
+   "title": "Brain correlates of suicide attempt in 18,925 participants across 18 international cohorts",
+   "journal": "Biological Psychiatry",
+   "year": 2021,
+   "doi": "",
+   "free": "",
+   "openAccess": false,
+   "match": 0.569
+  },
+  {
+   "id": 8,
+   "title": "ENIGMA\u2010Sleep: Challenges, opportunities, and the road map",
+   "journal": "Journal of Sleep Research",
+   "year": 2021,
+   "doi": "https://doi.org/10.1111/jsr.13347",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 7,
+   "title": "Virtual Histology of Cortical Thickness and Shared Neurobiology in 6 Psychiatric Disorders",
+   "journal": "JAMA Psychiatry",
+   "year": 2020,
+   "doi": "https://doi.org/10.1001/jamapsychiatry.2020.2694",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 6,
+   "title": "Brain aging in major depressive disorder: results from the ENIGMA major depressive disorder working group",
+   "journal": "Molecular Psychiatry",
+   "year": 2020,
+   "doi": "https://doi.org/10.1038/s41380-020-0754-0",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 5,
+   "title": "Subcortical shape alterations in major depressive disorder: Findings from the ENIGMA major depressive disorder working group",
+   "journal": "Human Brain Mapping**",
+   "year": 2020,
+   "doi": "https://doi.org/10.1002/hbm.24988",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 4,
+   "title": "ENIGMA and global neuroscience: A decade of large-scale studies of the brain in health and disease across more than 40 countries",
+   "journal": "Translational Psychiatry",
+   "year": 2020,
+   "doi": "https://doi.org/10.1038/s41398-020-0705-1",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 3,
+   "title": "White matter disturbances in major depressive disorder: a coordinated analysis across 20 international cohorts in the ENIGMA MDD working group",
+   "journal": "Molecular Psychiatry",
+   "year": 2020,
+   "doi": "https://doi.org/10.1038/s41380-019-0477-2",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 2,
+   "title": "Interactive impact of childhood maltreatment, depression, and age on cortical brain structure: mega-analytic findings from a large multi-site cohort",
+   "journal": "Psychological Medicine",
+   "year": 2020,
+   "doi": "https://doi.org/10.1017/s003329171900093x",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  },
+  {
+   "id": 1,
+   "title": "No Alterations of Brain Structural Asymmetry in Major Depressive Disorder: An ENIGMA Consortium Analysis",
+   "journal": "American Journal of Psychiatry",
+   "year": 2019,
+   "doi": "https://doi.org/10.1176/appi.ajp.2019.18101144",
+   "free": "",
+   "openAccess": true,
+   "match": 1.0
+  }
+ ]
+}

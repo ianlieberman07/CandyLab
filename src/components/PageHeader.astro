@@ -10,8 +10,15 @@ interface Props {
   /** Optional image. Bled off the page edge, or panelled if it is small. */
   image?: ImageMetadata;
   imageAlt?: string;
+  /**
+   * CSS object-position for the bleed crop — the image's focal point.
+   * A portrait photograph in this wide header is cropped hard vertically, and
+   * the default centre crop beheads a standing subject; "center 22%" keeps a
+   * face in frame. Editable per page from the admin.
+   */
+  imageFocus?: string;
 }
-const { eyebrow, title, lede, image, imageAlt } = Astro.props;
+const { eyebrow, title, lede, image, imageAlt, imageFocus } = Astro.props;
 
 // Wrappers only — the heading text is untouched. See utils/splitWords.ts.
 const titleHtml = splitWords(title);
@@ -38,7 +45,16 @@ const bleed = Boolean(image) && !isSmall;
       isSmall ? 'lg:grid lg:grid-cols-[1.35fr_1fr] lg:items-center lg:gap-20' : '',
     ]}
   >
-    <div class:list={['relative z-10', bleed ? 'lg:max-w-[56%]' : '']}>
+    {/* No image: the type is centred. Left-set type exists to sit against a
+        picture; with nothing on the right it reads as a mistake — half a
+        layout. Centred, the page opens like a title page instead. */}
+    <div
+      class:list={[
+        'relative z-10',
+        bleed ? 'lg:max-w-[56%]' : '',
+        !image ? 'flex flex-col items-center text-center' : '',
+      ]}
+    >
       <p class="reveal text-eyebrow font-medium uppercase text-signal">{eyebrow}</p>
       <h1
         class="reveal-words mt-6 max-w-[20ch] font-display text-display text-ink"
@@ -96,6 +112,7 @@ const bleed = Boolean(image) && !isSmall;
           loading="eager"
           fetchpriority="high"
           class="h-full w-full object-cover"
+          style={imageFocus ? `object-position: ${imageFocus}` : undefined}
         />
         <div class="page-header-fade absolute inset-0" />
       </div>

@@ -418,6 +418,8 @@ collections:
           - { label: 'Under Research', value: research }
           - { label: 'Under Resources', value: resources }
           - { label: 'Under Join', value: join }
+          - { label: 'Under Publications', value: publications }
+          - { label: 'Under Contact', value: contact }
       - {
           name: showInNav,
           label: 'Show in the menu at the top?',

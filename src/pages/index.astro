@@ -99,7 +99,26 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
 
       The type sits on the left third, which is clean ground — ink on #f9fafb
       is about 17:1. */}
-  <section class="hero relative flex min-h-svh flex-col justify-center overflow-hidden">
+  {/* Scroll-grow entrance, the client's brief: the brain starts small on load,
+      grows as you scroll, and the page only proceeds once it is full size.
+
+      Done as a scroll RUNWAY, not scroll-jacking: the section is 220svh tall
+      and its inner viewport is sticky, so the first 120svh of ordinary
+      scrolling plays the growth (a CSS scroll-driven animation on the
+      compositor) while the screen stays put. No wheel events are intercepted;
+      the scrollbar stays honest; assistive tech sees a normal document.
+
+      The small state needs no special art: the banner's edges ARE its studio
+      ground, and the section behind it is painted the same colour, so a
+      scaled-down image sits on an identical field with no visible boundary.
+      transform-origin is the subject's position, so the brain grows in place
+      rather than sliding in from a corner.
+
+      Engines without scroll timelines, and anyone with reduced motion set,
+      get the static full-size hero — height collapses to one viewport and the
+      animation never runs. */}
+  <section class="hero relative">
+    <div class="hero-viewport relative flex min-h-svh flex-col justify-center overflow-hidden">
     {/* On a wide screen the picture covers the section and the type is set into
         its clean left third — `object-position: 30%` shows the LEFT of a canvas
         three times the subject's width, which pushes the brain to the right.
@@ -171,6 +190,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
         picture is the section's background, and a background does not announce
         itself before the heading. */}
     <p class="sr-only">{hero.alt}</p>
+    </div>
   </section>
 
   {/* ── About ───────────────────────────────────────────────── */}
@@ -337,6 +357,55 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   .hero-media-img {
     object-position: center 42%;
     object-position: max(calc(100vw - 81.6svh), min(0px, calc(50vw - 49.1svh))) center;
+  }
+
+  /* ── Scroll-grow entrance ─────────────────────────────────
+     Only where scroll timelines exist AND motion is welcome: the section
+     becomes a 220svh runway whose inner viewport is sticky, and the image
+     scales 0.34 → 1 across the first 120svh of scroll — which is exactly when
+     the sticky releases, so full size and "the page moves on" coincide.
+
+     Compositor-only (transform), no JS, no wheel interception. Everyone else
+     gets the static hero: the section stays one viewport tall and the image
+     sits at full scale. */
+  @supports (animation-timeline: scroll(root)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .hero {
+        height: 220svh;
+      }
+      .hero-viewport {
+        position: sticky;
+        top: 0;
+        height: 100svh;
+        min-height: 0;
+      }
+      .hero-media-img {
+        animation: hero-grow linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 120svh;
+      }
+    }
+  }
+
+  @keyframes hero-grow {
+    from {
+      transform: scale(0.34);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  /* The growth anchors on the subject so the brain inflates in place. Same
+     split as object-position: the subject sits mid-band on a phone, at 73%
+     of the field on a wide screen. */
+  .hero-media-img {
+    transform-origin: 50% 45%;
+  }
+  @media (min-width: 1024px) {
+    .hero-media-img {
+      transform-origin: 73% 46%;
+    }
   }
 
   /* Wide: the picture is the whole field, and the subject's centre is pinned

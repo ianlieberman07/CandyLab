@@ -41,12 +41,18 @@ const resolve = (path: string) => files[path.replace('./', '../../content/pages/
     lede={page.data.lede}
     image={page.data.hero}
     imageAlt={page.data.heroAlt}
+    imageFocus={page.data.heroFocus}
   />
 
+  {/* On a page with no header photo the header type is centred, so the body
+      follows the same axis: the notice and the prose column sit centred rather
+      than hugging the left with an empty right half. Text inside the prose
+      stays left-aligned — centred paragraphs are hard to read — it is the
+      COLUMN that centres. */}
   <div class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
     {
       page.data.needsReview && (
-        <div class="mb-12">
+        <div class:list={['mb-12', !page.data.hero ? 'flex justify-center' : '']}>
           <Notice title="This page is still a placeholder">
             <p>
               The lab's current site says only “Coming Soon” here, so there is nothing to carry
@@ -60,7 +66,12 @@ const resolve = (path: string) => files[path.replace('./', '../../content/pages/
 
     {
       body && (
-        <div class="reveal prose-lab max-w-(--container-prose)">
+        <div
+          class:list={[
+            'reveal prose-lab max-w-(--container-prose)',
+            !page.data.hero ? 'mx-auto' : '',
+          ]}
+        >
           <Content />
         </div>
       )

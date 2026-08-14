@@ -51,6 +51,10 @@ export const NAV_PARENTS = [
   { key: 'research', label: 'Research', href: '/research' },
   { key: 'resources', label: 'Resources', href: '/resources' },
   { key: 'join', label: 'Join', href: '/join' },
+  // Mirrors the original candylab site: Publications carried ENIGMA in a
+  // dropdown, and Contact carried Participate.
+  { key: 'publications', label: 'Publications', href: '/publications' },
+  { key: 'contact', label: 'Contact', href: '/contact' },
 ] as const;
 
 export type NavParentKey = (typeof NAV_PARENTS)[number]['key'];
@@ -61,4 +65,7 @@ export const NAV_EXTRA_CHILDREN: {
   label: string;
   href: string;
   order: number;
-}[] = [{ parent: 'people', label: 'Lab Alumni', href: '/people/alumni', order: 10 }];
+}[] = [
+  { parent: 'people', label: 'Lab Alumni', href: '/people/alumni', order: 10 },
+  { parent: 'publications', label: 'ENIGMA', href: '/publications/enigma', order: 10 },
+];

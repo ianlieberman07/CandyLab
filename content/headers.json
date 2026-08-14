@@ -9,8 +9,8 @@
   {
    "key": "research",
    "label": "Research",
-   "image": "./pages/images/art/cover-traces.jpg",
-   "alt": "Abstract overlaid signal traces in teal and ink on a pale ground."
+   "image": "",
+   "alt": ""
   },
   {
    "key": "publications",
@@ -33,8 +33,8 @@
   {
    "key": "news",
    "label": "News",
-   "image": "./pages/images/art/cover-fields.jpg",
-   "alt": "Two overlapping fields of concentric rings meeting in the middle of a pale ground."
+   "image": "",
+   "alt": ""
   }
  ]
 }

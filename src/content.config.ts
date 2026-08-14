@@ -138,6 +138,10 @@ const pages = defineCollection({
       lede: z.string().optional(),
       hero: image().optional(),
       heroAlt: z.string().optional(),
+      // Focal point for the header crop, as CSS object-position ("center 22%").
+      // A portrait photo in the wide header beheads its subject at the default
+      // centre; this keeps the face in frame, and is editable in the admin.
+      heroFocus: z.string().optional(),
       // Names a photo set in /content/<name>.json to print under the page's
       // text. Lets the gallery and pets pages be ordinary pages rather than
       // two more bespoke templates.
@@ -150,11 +154,29 @@ const pages = defineCollection({
       // Nests this page inside a section's dropdown instead of giving it its
       // own slot in the bar. Keeps the bar short without making pages
       // unreachable, which is what hiding them from the menu did.
-      navParent: z.enum(['people', 'research', 'resources', 'join']).optional(),
+      navParent: z.enum(['people', 'research', 'resources', 'join', 'publications', 'contact']).optional(),
       // Lets her build a page over several sittings without it being public.
       draft: z.boolean().default(false),
       needsReview: z.boolean().default(false),
     }),
 });
 
-export const collections = { people, research, papers, news, pages };
+// ENIGMA-consortium papers, from the original site's Publications > ENIGMA
+// sub-page. That page carried NO links at all; every DOI here was resolved
+// against OpenAlex/Crossref, and unresolved titles keep an empty doi rather
+// than a guessed one.
+const enigmaPapers = defineCollection({
+  loader: file('./content/enigma-papers.json', { parser: (text) => JSON.parse(text).papers }),
+  schema: z.object({
+    id: z.number(),
+    title: z.string(),
+    journal: z.string().default(''),
+    year: z.number(),
+    doi: z.string().default(''),
+    free: z.string().default(''),
+    openAccess: z.boolean().default(false),
+    match: z.number().optional(),
+  }),
+});
+
+export const collections = { people, research, papers, news, pages, enigmaPapers };
