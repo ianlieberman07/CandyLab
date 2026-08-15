@@ -72,15 +72,13 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       cannot show. Any dark-field image dropped in through the admin gets the
       same seamlessness for free.
 
-      Scroll-grow entrance, the client's brief: the brain starts small on load
-      and grows as you scroll, and the page only proceeds once it is full size.
-      Done as a scroll RUNWAY, not scroll-jacking — the section is 240svh tall
-      and its inner viewport is sticky, so the first 140svh of ordinary
-      scrolling plays the growth (a CSS scroll-driven animation on the
-      compositor) while the screen stays put. No wheel events are intercepted;
-      the scrollbar stays honest; assistive tech sees a normal document.
-      Engines without scroll timelines, and anyone with reduced motion set,
-      get the static full-size hero. */}
+      Growth entrance, the client's brief (from their reference sketch of a
+      brain in three sizes): the brain GROWS on its own after the page loads —
+      no scrolling involved. It starts small and left of centre, swells to a
+      middle size, rests a beat, then settles full-size in the centre: three
+      stages, like the sketch, played as one slow animation. Time-based CSS
+      keyframes on the compositor; the page scrolls normally throughout.
+      Anyone with reduced motion set gets the static full-size hero. */}
   <section class="hero relative">
     <div class="hero-viewport relative flex min-h-svh flex-col justify-end overflow-hidden">
       {
@@ -317,53 +315,58 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   /* The growth anchors just above the image's centre, where the sculpture
-     sits inside its bottom-padded frame, so the brain inflates in place. */
+     sits inside its bottom-padded frame, so the brain inflates in place
+     rather than drifting as it scales. */
   .hero-media-img {
     transform-origin: 50% 44%;
   }
 
-  /* ── Scroll-grow entrance ─────────────────────────────────
-     Only where scroll timelines exist AND motion is welcome: the section
-     becomes a 240svh runway whose inner viewport is sticky, and the image
-     scales 0.3 → 1 across the first 140svh of scroll — which is exactly when
-     the sticky releases, so full size and "the page moves on" coincide.
+  /* ── Growth entrance ──────────────────────────────────────
+     Three stages played as one slow animation, per the client's sketch:
+     small at the left, medium nearer the middle, full-size in the centre.
+     The holds between movements are what make it read as *growing* — a
+     continuous zoom just looks like the brain approaching the camera, which
+     is exactly what was rejected.
 
-     Two things make it feel smooth rather than mechanical. The travel is
-     long — 140svh of scroll for one gesture's worth of growth, so no single
-     wheel tick jumps the scale — and the curve is an ease-in-out, so the
-     growth gathers speed gently and settles gently instead of tracking the
-     scroll linearly. The image is object-contain, so the compositor rescales
-     a viewport-sized bitmap, not an oversized cover crop.
+     translateX is in percentages of the element's own (viewport-wide) box,
+     so the offsets scale with every screen. The transform list is
+     translate-then-scale: the translation distance stays constant while the
+     brain scales about its own centre.
 
-     Compositor-only (transform), no JS, no wheel interception. Everyone else
-     gets the static hero: the section stays one viewport tall and the image
-     sits at full scale. */
-  @supports (animation-timeline: scroll(root)) {
-    @media (prefers-reduced-motion: no-preference) {
-      .hero {
-        height: 240svh;
-      }
-      .hero-viewport {
-        position: sticky;
-        top: 0;
-        height: 100svh;
-        min-height: 0;
-      }
-      .hero-media-img {
-        animation: hero-grow var(--ease-in-out-soft) both;
-        animation-timeline: scroll(root);
-        animation-range: 0 140svh;
-        will-change: transform;
-      }
+     Runs once, ~7s, entirely on the compositor. `both` holds the small-left
+     state through the initial delay and the full-size state forever after.
+     Reduced motion: no animation, so the default full-size centred state
+     simply stands. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-media-img {
+      animation: hero-grow 6.6s linear 0.5s both;
     }
   }
 
   @keyframes hero-grow {
-    from {
-      transform: scale(0.3);
+    0% {
+      transform: translateX(-21%) scale(0.3);
     }
-    to {
-      transform: scale(1);
+    /* hold small */
+    15% {
+      transform: translateX(-21%) scale(0.3);
+      animation-timing-function: var(--ease-in-out-soft);
+    }
+    /* grow to medium, part-way in */
+    36% {
+      transform: translateX(-10%) scale(0.55);
+    }
+    /* hold medium */
+    51% {
+      transform: translateX(-10%) scale(0.55);
+      animation-timing-function: var(--ease-in-out-soft);
+    }
+    /* grow to full, centred */
+    83% {
+      transform: translateX(0) scale(1);
+    }
+    100% {
+      transform: translateX(0) scale(1);
     }
   }
 </style>
