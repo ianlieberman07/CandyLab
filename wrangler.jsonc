@@ -1,0 +1,19 @@
+// Cloudflare Workers deployment — static assets only, no server code.
+// Mirrors the SAN Lab setup: the site deploys as a Worker with static assets,
+// via Workers Builds (Cloudflare's git integration), so every commit to main —
+// including Dr. Ho's saves from /admin — rebuilds and ships on its own.
+//
+// Local deploys (`npx wrangler deploy`) use this same file, but after launch
+// they should not happen: pushing IS deploying. See DOCS/DEPLOYMENT.md.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "candylab",
+  "compatibility_date": "2026-08-14",
+  "assets": {
+    "directory": "./dist",
+    // /research and /research/ both resolve, matching Astro's output.
+    "html_handling": "auto-trailing-slash",
+    // Serve dist/404.html for unknown paths instead of a bare error.
+    "not_found_handling": "404-page"
+  }
+}
