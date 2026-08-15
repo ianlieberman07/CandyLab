@@ -1,19 +1,14 @@
-// Cloudflare Workers deployment — static assets only, no server code.
-// Mirrors the SAN Lab setup: the site deploys as a Worker with static assets,
-// via Workers Builds (Cloudflare's git integration), so every commit to main —
-// including Dr. Ho's saves from /admin — rebuilds and ships on its own.
+// Cloudflare Pages deployment.
+// One line is all Pages needs: where the built site lands. The dashboard's
+// git integration reads this and fills in its own settings; the build command
+// (`npm run build`) is set in the dashboard when the repo is connected.
 //
-// Local deploys (`npx wrangler deploy`) use this same file, but after launch
-// they should not happen: pushing IS deploying. See DOCS/DEPLOYMENT.md.
+// Every commit to main — including Dr. Ho's saves from /admin — triggers a
+// rebuild and deploy on Cloudflare's machines. Pushing IS deploying; nobody
+// ever deploys by hand. See DOCS/DEPLOYMENT.md.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "candylab",
   "compatibility_date": "2026-08-14",
-  "assets": {
-    "directory": "./dist",
-    // /research and /research/ both resolve, matching Astro's output.
-    "html_handling": "auto-trailing-slash",
-    // Serve dist/404.html for unknown paths instead of a bare error.
-    "not_found_handling": "404-page"
-  }
+  "pages_build_output_dir": "./dist"
 }
