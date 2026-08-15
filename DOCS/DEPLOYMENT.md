@@ -19,13 +19,12 @@ the ask of UCLA IT is a DNS record rather than a machine to look after.
 
 ## 1. Push the repository
 
-```bash
-gh repo create CandyLab --private --source . --push
-```
+**Done.** The repository is public at `github.com/ianlieberman07/CandyLab`
+(public, matching the SAN Lab repo).
 
 The CMS config already names `ianlieberman07/CandyLab`
-(`public/admin/config.yml`, `backend.repo`). If the repository lands somewhere
-else, correct that one line — it is the only place the name appears.
+(`public/admin/config.yml`, `backend.repo`). If the repository ever moves,
+correct that one line — it is the only place the name appears.
 
 See DOCS/QUESTIONS.md #4 on transferring ownership to the lab before handover.
 
@@ -33,21 +32,25 @@ See DOCS/QUESTIONS.md #4 on transferring ownership to the lab before handover.
 
 ## 2. Connect Cloudflare Pages
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** →
-   **Connect to Git**, and pick the repository.
-2. Build settings:
+**Done — 14 August 2026.** The site is live at
+
+```
+https://candylab.pages.dev
+```
+
+as a git-connected Cloudflare Pages project (created via the API against the
+account's existing GitHub integration). The settings, should they ever need
+recreating:
 
    | Setting | Value |
    |---|---|
-   | Framework preset | Astro |
+   | Project name | `candylab` |
+   | Production branch | `main` |
    | Build command | `npm run build` |
    | Output directory | `dist` |
-   | Node version | 20 or later |
-
-3. Deploy. You get a `candylab.pages.dev` address (or a variant of it).
 
 Every push to `main` redeploys — which means every save in the admin
-redeploys, since a save is a commit.
+redeploys, since a save is a commit. Nobody deploys by hand.
 
 ### The `SITE_URL` variable
 
@@ -66,9 +69,19 @@ site.
 
 ## 3. Set up the admin sign-in worker
 
-The CMS signs in through GitHub OAuth, and OAuth needs one small server-side
-piece to hold the client secret. Sveltia publishes exactly that:
-`github.com/sveltia/sveltia-cms-auth`.
+**Done — 14 August 2026.** This site reuses the worker already serving the
+SAN Lab site: `sveltia-cms-auth.ianlieberman07.workers.dev`. Its
+`ALLOWED_DOMAINS` now reads
+
+```
+sanlab.psych.ucla.edu,eisenbergerlab.pages.dev,eisenbergerlab.ianlieberman07.workers.dev,candylab.pages.dev,candylab.psych.ucla.edu
+```
+
+— both labs' preview and launch hostnames, one OAuth app, one worker. The
+`candylab.psych.ucla.edu` entry is inert until that domain actually points at
+this site, so nothing needs touching on launch day.
+
+The original setup steps, kept for whoever builds the next lab's site:
 
 1. Deploy it as its own Cloudflare Worker (its README has a deploy button).
 2. Create a GitHub OAuth app — GitHub → Settings → Developer settings → OAuth
