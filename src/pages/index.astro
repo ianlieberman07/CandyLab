@@ -72,27 +72,37 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       cannot show. Any dark-field image dropped in through the admin gets the
       same seamlessness for free.
 
-      Growth entrance, the client's brief (from their reference sketch of a
-      brain in three sizes): the brain GROWS on its own after the page loads —
-      no scrolling involved. It starts small and left of centre, swells to a
-      middle size, rests a beat, then settles full-size in the centre: three
-      stages, like the sketch, played as one slow animation. Time-based CSS
-      keyframes on the compositor; the page scrolls normally throughout.
-      Anyone with reduced motion set gets the static full-size hero. */}
+      Growth loop, the client's brief (from their reference sketch of a brain
+      in three sizes on a line): the same sculpture appears at three stations —
+      small at the left, medium in the middle, largest at the right — and the
+      stage holds ONE brain at a time, each new size breathing in as the last
+      breathes out. The cycle is slow (~18s), seamless, and runs on its own;
+      no scrolling is involved and the page scrolls normally throughout.
+      Each brain also swells very slightly while it is on stage, so every
+      stage is itself growing, not just appearing.
+
+      Three <Image>s of the same file, so the admin still manages exactly one
+      hero photograph. Opacity and transform only — the whole loop lives on
+      the compositor. Anyone with reduced motion set gets the still version
+      of the sketch instead: all three sizes standing together on the line. */}
   <section class="hero relative">
     <div class="hero-viewport relative flex min-h-svh flex-col justify-end overflow-hidden">
       {
         hero.image && (
-          <div class="absolute inset-0 bg-paper" aria-hidden="true">
-            <Image
-              src={hero.image}
-              alt=""
-              widths={[828, 1440, 2160, Math.min(hero.image.width, 2912)]}
-              sizes="100vw"
-              loading="eager"
-              fetchpriority="high"
-              class="hero-media-img h-full w-full object-contain object-center p-[4svh] pb-[26svh] mix-blend-lighten"
-            />
+          <div class="hero-stage absolute inset-0 bg-paper" aria-hidden="true">
+            {['s', 'm', 'l'].map((size) => (
+              <div class={`hero-brain hero-brain-${size} absolute`}>
+                <Image
+                  src={hero.image}
+                  alt=""
+                  widths={[640, 1080, 1600, 2160]}
+                  sizes="(min-width: 1024px) 100svh, 60vw"
+                  loading="eager"
+                  fetchpriority={size === 'l' ? 'high' : undefined}
+                  class="h-full w-auto max-w-none object-contain mix-blend-lighten"
+                />
+              </div>
+            ))}
           </div>
         )
       }
@@ -314,59 +324,159 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
     background-color: var(--color-hero-ground);
   }
 
-  /* The growth anchors just above the image's centre, where the sculpture
-     sits inside its bottom-padded frame, so the brain inflates in place
-     rather than drifting as it scales. */
-  .hero-media-img {
-    transform-origin: 50% 44%;
+  /* ── The three stations ───────────────────────────────────
+     Small, medium and large stand on one ground line, as in the client's
+     sketch. The wrapper owns position (translateX centring), the <img> owns
+     the animated properties — so the two transforms never fight. */
+  .hero-brain {
+    transform: translateX(-50%);
+    bottom: 42svh;
+  }
+  /* The wrapper's transform makes it a stacking context, which is where the
+     img's mix-blend-lighten now resolves — so the wrapper must paint the paper
+     black for the image's ground to clamp against. Painted 10% oversize,
+     because the img swells up to 6% past the wrapper while it is on stage and
+     the overhang would otherwise blend against nothing and show its frame.
+     A paper-black box on the paper-black page: invisible. */
+  .hero-brain::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    z-index: -1;
+    background-color: var(--color-paper);
+  }
+  /* Stations tuned per breakpoint: on a phone the largest frame is nearly the
+     viewport's width, so its station moves inboard to keep the sculpture
+     itself clear of the right edge. */
+  .hero-brain-s {
+    left: 16%;
+    height: 12svh;
+  }
+  .hero-brain-m {
+    left: 45%;
+    height: 20svh;
+  }
+  .hero-brain-l {
+    left: 65%;
+    height: 26svh;
+  }
+  @media (min-width: 1024px) {
+    .hero-brain {
+      bottom: 30svh;
+    }
+    .hero-brain-s {
+      left: 18%;
+      height: 22svh;
+    }
+    .hero-brain-m {
+      left: 50%;
+      height: 40svh;
+    }
+    .hero-brain-l {
+      left: 80%;
+      height: 62svh;
+    }
   }
 
-  /* ── Growth entrance ──────────────────────────────────────
-     Three stages played as one slow animation, per the client's sketch:
-     small at the left, medium nearer the middle, full-size in the centre.
-     The holds between movements are what make it read as *growing* — a
-     continuous zoom just looks like the brain approaching the camera, which
-     is exactly what was rejected.
+  /* Each brain swells from its base, like something growing out of the
+     ground line, not inflating in space. */
+  .hero-brain img {
+    transform-origin: 50% 88%;
+  }
 
-     translateX is in percentages of the element's own (viewport-wide) box,
-     so the offsets scale with every screen. The transform list is
-     translate-then-scale: the translation distance stays constant while the
-     brain scales about its own centre.
+  /* ── The growth loop ──────────────────────────────────────
+     One slow 18s cycle, opacity + scale only, forever. Exactly one brain
+     holds the stage at a time; each fade-out overlaps the next fade-in, so
+     one is always breathing in as the last breathes out — including across
+     the loop seam, where the largest hands back to the smallest. While a
+     brain is on stage it continues to swell gently, so every stage is
+     itself growing; while it is invisible its scale drifts back down,
+     ready for the next pass.
 
-     Runs once, ~7s, entirely on the compositor. `both` holds the small-left
-     state through the initial delay and the full-size state forever after.
-     Reduced motion: no animation, so the default full-size centred state
-     simply stands. */
+     Reduced motion: the animations never run, the base opacity of 1 stands,
+     and the hero is the sketch as a still — all three sizes on the line. */
   @media (prefers-reduced-motion: no-preference) {
-    .hero-media-img {
-      animation: hero-grow 6.6s linear 0.5s both;
+    .hero-brain-s img {
+      animation: hero-cycle-s 18s var(--ease-in-out-soft) infinite;
+    }
+    .hero-brain-m img {
+      animation: hero-cycle-m 18s var(--ease-in-out-soft) infinite;
+    }
+    .hero-brain-l img {
+      animation: hero-cycle-l 18s var(--ease-in-out-soft) infinite;
     }
   }
 
-  @keyframes hero-grow {
+  @keyframes hero-cycle-s {
     0% {
-      transform: translateX(-21%) scale(0.3);
+      opacity: 0;
+      transform: scale(0.94);
     }
-    /* hold small */
-    15% {
-      transform: translateX(-21%) scale(0.3);
-      animation-timing-function: var(--ease-in-out-soft);
+    8% {
+      opacity: 1;
+      transform: scale(0.97);
     }
-    /* grow to medium, part-way in */
+    28% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
     36% {
-      transform: translateX(-10%) scale(0.55);
-    }
-    /* hold medium */
-    51% {
-      transform: translateX(-10%) scale(0.55);
-      animation-timing-function: var(--ease-in-out-soft);
-    }
-    /* grow to full, centred */
-    83% {
-      transform: translateX(0) scale(1);
+      opacity: 0;
+      transform: scale(1.06);
     }
     100% {
-      transform: translateX(0) scale(1);
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+
+  @keyframes hero-cycle-m {
+    0%,
+    28% {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    36% {
+      opacity: 1;
+      transform: scale(0.97);
+    }
+    61% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+    69% {
+      opacity: 0;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+
+  /* The large brain is the one on stage as the loop wraps: visible at both
+     0% and 100%, with matching scale, so the seam cannot show. */
+  @keyframes hero-cycle-l {
+    0% {
+      opacity: 1;
+      transform: scale(1.015);
+    }
+    8% {
+      opacity: 0;
+      transform: scale(1.06);
+    }
+    16%,
+    61% {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    69% {
+      opacity: 1;
+      transform: scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1.015);
     }
   }
 </style>
