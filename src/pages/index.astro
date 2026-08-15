@@ -73,18 +73,16 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       same seamlessness for free.
 
       Growth loop, the client's brief (from their reference sketch): the same
-      sculpture appears at five stations of increasing size — marching left to
-      right on a wide screen, growing in place at the centre on a phone — and
-      the stage holds ONE brain at a time, each new size breathing in as the
-      last breathes out. Every brain also swells gently while it is on stage,
-      so each stage is itself growing, not just appearing.
+      sculpture appears at five stations of increasing size — left to right
+      on a wide screen, stacked in place at the centre on a phone — and the
+      line ACCUMULATES: each brain arrives and stays, until all five stand
+      together; then the stage clears in one breath and the cycle restarts.
+      Each brain swells gently across its whole stay, so the line keeps
+      breathing while it fills.
 
-      One envelope drives all five: identical keyframes, staggered by
-      animation-delay (3s apart on a 15s cycle). Because each animation is
-      infinite with its own phase, the hand-off at the loop seam is the same
-      as every other hand-off — there is no seam to hide. The image's ground
-      is baked to the page's exact black (scripts note in the covers folder),
-      so there are no blend modes and no layers to composite wrongly.
+      The image's ground is baked to the page's exact black (scripts note in
+      the covers folder), so there are no blend modes and no layers for the
+      compositor to get wrong.
 
       Five <Image>s of the same file, so the admin still manages exactly one
       hero photograph. Opacity and transform only — the whole loop lives on
@@ -104,8 +102,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
                   sizes="70vw"
                   loading="eager"
                   fetchpriority={i === 4 ? 'high' : undefined}
-                  class="h-full w-auto max-w-none object-contain"
-                  style={`animation-delay: ${i * 3}s`}
+                  class="w-full h-auto max-w-none"
                 />
               </div>
             ))}
@@ -332,55 +329,66 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   /* ── The five stations ────────────────────────────────────
-     Five sizes on one ground line. On a wide screen they march left to
+     Five sizes on one ground line. On a wide screen they stand left to
      right, as in the client's sketch; on a phone every station sits at the
-     centre, so the growth happens in place instead of travelling across a
-     screen with no room for a march. The wrapper owns position (the
-     translateX centring), the <img> owns the animated properties — so the
-     two transforms never fight. */
+     centre, bottom-aligned, so a bigger brain simply covers the smaller
+     ones — the growth happens in place.
+
+     Everything is sized in vw, not svh: the image file is cropped tight to
+     the sculpture (aspect 1.36), and since the brains now ACCUMULATE, no
+     station's frame may ever reach a neighbour — vw widths keep the row's
+     geometry fixed relative to itself on every screen, where svh heights
+     would swell the frames into each other on tall narrow windows.
+
+     The wrapper owns position (the translateX centring), the <img> owns
+     the animated properties — so the two transforms never fight. */
   .hero-brain {
     left: 50%;
-    bottom: 42svh;
+    bottom: 45svh;
     transform: translateX(-50%);
   }
+  .hero-brain img {
+    width: 100%;
+    height: auto;
+  }
   .hero-brain-0 {
-    height: 10svh;
+    width: 34vw;
   }
   .hero-brain-1 {
-    height: 15svh;
+    width: 43vw;
   }
   .hero-brain-2 {
-    height: 21svh;
+    width: 52vw;
   }
   .hero-brain-3 {
-    height: 27svh;
+    width: 61vw;
   }
   .hero-brain-4 {
-    height: 34svh;
+    width: 70vw;
   }
   @media (min-width: 1024px) {
     .hero-brain {
-      bottom: 30svh;
+      bottom: 34svh;
     }
     .hero-brain-0 {
-      left: 8%;
-      height: 12svh;
+      left: 6.5vw;
+      width: 7vw;
     }
     .hero-brain-1 {
-      left: 25%;
-      height: 20svh;
+      left: 17.5vw;
+      width: 11vw;
     }
     .hero-brain-2 {
-      left: 45%;
-      height: 30svh;
+      left: 34vw;
+      width: 16vw;
     }
     .hero-brain-3 {
-      left: 64%;
-      height: 43svh;
+      left: 54vw;
+      width: 22vw;
     }
     .hero-brain-4 {
-      left: 80%;
-      height: 58svh;
+      left: 82vw;
+      width: 29vw;
     }
   }
 
@@ -391,45 +399,128 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   }
 
   /* ── The growth loop ──────────────────────────────────────
-     One envelope, five phases. Every brain runs the same 15s keyframes,
-     offset 3s apart by the inline animation-delay, so each takes a 3s turn:
-     breathe in over 0.75s, hold and swell, breathe out over 0.9s — and the
-     fade-out of one always overlaps the fade-in of the next, including
-     across the loop seam, because each animation is infinite with its own
-     phase and never restarts in sync with anything.
+     Accumulating, per the client's direction: each brain arrives and STAYS,
+     so the line fills up left to right until all five stand together; then
+     the stage clears in one shared breath and the cycle begins again.
 
-     `both` matters: it holds the 0% frame (invisible) through each brain's
-     initial delay, so brains 2–5 do not flash at full opacity on load.
+     Entrances land every ~1.6s across a 10.5s cycle. Each brain needs its
+     own keyframes now — they all leave together at 91%, so the earlier a
+     brain arrives, the longer it holds, and one shared envelope cannot say
+     that. Every brain swells very slightly across its whole stay, so the
+     line keeps breathing while it fills.
 
      Reduced motion: the animations never run, the base opacity of 1 stands,
-     and the hero is the sketch as a still — all five sizes on the line. */
+     and the hero is the finished sketch — all five sizes on the line. */
   @media (prefers-reduced-motion: no-preference) {
-    .hero-brain img {
-      animation: hero-turn 15s var(--ease-in-out-soft) both infinite;
+    .hero-brain-0 img {
+      animation: hero-fill-0 10.5s var(--ease-in-out-soft) infinite;
+    }
+    .hero-brain-1 img {
+      animation: hero-fill-1 10.5s var(--ease-in-out-soft) infinite;
+    }
+    .hero-brain-2 img {
+      animation: hero-fill-2 10.5s var(--ease-in-out-soft) infinite;
+    }
+    .hero-brain-3 img {
+      animation: hero-fill-3 10.5s var(--ease-in-out-soft) infinite;
+    }
+    .hero-brain-4 img {
+      animation: hero-fill-4 10.5s var(--ease-in-out-soft) infinite;
     }
   }
 
-  @keyframes hero-turn {
+  @keyframes hero-fill-0 {
     0% {
       opacity: 0;
-      transform: scale(0.94);
+      transform: scale(0.95);
     }
-    5% {
+    7%,
+    91% {
       opacity: 1;
-      transform: scale(0.97);
     }
-    17% {
-      opacity: 1;
+    91% {
       transform: scale(1.02);
     }
-    23% {
-      opacity: 0;
-      transform: scale(1.05);
-    }
-    60%,
+    99%,
     100% {
       opacity: 0;
-      transform: scale(0.94);
+      transform: scale(1.04);
+    }
+  }
+  @keyframes hero-fill-1 {
+    0%,
+    15% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    22%,
+    91% {
+      opacity: 1;
+    }
+    91% {
+      transform: scale(1.02);
+    }
+    99%,
+    100% {
+      opacity: 0;
+      transform: scale(1.04);
+    }
+  }
+  @keyframes hero-fill-2 {
+    0%,
+    30% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    37%,
+    91% {
+      opacity: 1;
+    }
+    91% {
+      transform: scale(1.02);
+    }
+    99%,
+    100% {
+      opacity: 0;
+      transform: scale(1.04);
+    }
+  }
+  @keyframes hero-fill-3 {
+    0%,
+    46% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    53%,
+    91% {
+      opacity: 1;
+    }
+    91% {
+      transform: scale(1.02);
+    }
+    99%,
+    100% {
+      opacity: 0;
+      transform: scale(1.04);
+    }
+  }
+  @keyframes hero-fill-4 {
+    0%,
+    61% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    68%,
+    91% {
+      opacity: 1;
+    }
+    91% {
+      transform: scale(1.02);
+    }
+    99%,
+    100% {
+      opacity: 0;
+      transform: scale(1.04);
     }
   }
 </style>
