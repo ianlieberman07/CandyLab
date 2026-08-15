@@ -66,12 +66,6 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       quietly along the bottom — the same composition as the SAN Lab hero the
       client pointed to.
 
-      The photograph needs no edge treatment at all: `mix-blend-lighten` takes
-      the per-channel maximum against the painted ground, so every pixel darker
-      than the page's black clamps to exactly the page's black and the frame
-      cannot show. Any dark-field image dropped in through the admin gets the
-      same seamlessness for free.
-
       Growth loop, the client's brief (from their reference sketch): the same
       sculpture appears at five stations of increasing size — left to right
       on a wide screen, stacked in place at the centre on a phone — and the
@@ -403,7 +397,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
      so the line fills up left to right until all five stand together; then
      the stage clears in one shared breath and the cycle begins again.
 
-     Entrances land every ~1.6s across a 10.5s cycle. Each brain needs its
+     Entrances land every ~0.4s across a 2.6s cycle. Each brain needs its
      own keyframes now — they all leave together at 91%, so the earlier a
      brain arrives, the longer it holds, and one shared envelope cannot say
      that. Every brain swells very slightly across its whole stay, so the
@@ -413,19 +407,19 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
      and the hero is the finished sketch — all five sizes on the line. */
   @media (prefers-reduced-motion: no-preference) {
     .hero-brain-0 img {
-      animation: hero-fill-0 10.5s var(--ease-in-out-soft) infinite;
+      animation: hero-fill-0 2.6s var(--ease-in-out-soft) infinite;
     }
     .hero-brain-1 img {
-      animation: hero-fill-1 10.5s var(--ease-in-out-soft) infinite;
+      animation: hero-fill-1 2.6s var(--ease-in-out-soft) infinite;
     }
     .hero-brain-2 img {
-      animation: hero-fill-2 10.5s var(--ease-in-out-soft) infinite;
+      animation: hero-fill-2 2.6s var(--ease-in-out-soft) infinite;
     }
     .hero-brain-3 img {
-      animation: hero-fill-3 10.5s var(--ease-in-out-soft) infinite;
+      animation: hero-fill-3 2.6s var(--ease-in-out-soft) infinite;
     }
     .hero-brain-4 img {
-      animation: hero-fill-4 10.5s var(--ease-in-out-soft) infinite;
+      animation: hero-fill-4 2.6s var(--ease-in-out-soft) infinite;
     }
   }
 
