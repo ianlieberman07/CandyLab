@@ -67,5 +67,4 @@ export const NAV_EXTRA_CHILDREN: {
   order: number;
 }[] = [
   { parent: 'people', label: 'Lab Alumni', href: '/people/alumni', order: 10 },
-  { parent: 'publications', label: 'ENIGMA', href: '/publications/enigma', order: 10 },
 ];

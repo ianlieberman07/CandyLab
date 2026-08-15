@@ -62,135 +62,91 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   transparentHeader
 >
   {/* ── First screen ──────────────────────────────────────────
-      Centred type, then the photograph as a full-width band anchored to the
-      fold. Chosen over two tested alternatives (see git history): a full-screen
-      image collides with the heading and takes over the site's colour world,
-      and a keyed cutout carries visible damage from the source's shadowed edge.
+      A white marble brain centred on the page's own black, with the type set
+      quietly along the bottom — the same composition as the SAN Lab hero the
+      client pointed to.
 
-      The band asset is the photograph EXTENDED, not cropped: its ground is a
-      gradient (#8ba19e→#507474), so scripts/make-banner.mjs rebuilds it on a
-      2880px canvas painted with the image's own sampled gradient and feathers
-      the original into the middle. One file, seamless edge to edge — nothing
-      for CSS to colour-match, so nothing to drift out of sync. At 2880px the
-      brain renders at native resolution on a 2x display at full width.
+      The photograph needs no edge treatment at all: `mix-blend-lighten` takes
+      the per-channel maximum against the painted ground, so every pixel darker
+      than the page's black clamps to exactly the page's black and the frame
+      cannot show. Any dark-field image dropped in through the admin gets the
+      same seamlessness for free.
 
-      The lab's name, the director's name and the contact links all sit above
-      the band, so on every viewport they are above the fold — people arrive
-      having been given a person's name, not an acronym. `min-h-svh`, not vh:
-      on a phone, vh pretends the browser chrome is retracted. */}
-  {/* The photograph IS the first screen, with the type set into it.
-
-      Two things drove this. Beside the type it read as an accessory rather
-      than the subject. And no matter how carefully the page was painted to
-      match, a faint patch showed where the picture's ground met it — the
-      ground is not one colour, it drifts between #f8f9f7 and #fafbfc across
-      the frame, so any single CSS value is wrong somewhere.
-
-      Both problems have the same answer: cover the whole section with the
-      picture. There is no page colour touching it, so there is nothing to
-      match and no seam to find. scripts/make-banner.mjs extends the studio
-      ground outward on a 3840px canvas — painted with the image's own sampled
-      gradient — so it reaches any viewport width without repeating or
-      stretching.
-
-      (Keying the ground to true transparency was tried first and abandoned:
-      the brain is bone-white and near-neutral where it is lit, so a flood fill
-      leaks straight into it. A white subject on a white ground does not key
-      reliably without a proper matting model.)
-
-      The type sits on the left third, which is clean ground — ink on #f9fafb
-      is about 17:1. */}
-  {/* Scroll-grow entrance, the client's brief: the brain starts small on load,
-      grows as you scroll, and the page only proceeds once it is full size.
-
-      Done as a scroll RUNWAY, not scroll-jacking: the section is 220svh tall
-      and its inner viewport is sticky, so the first 120svh of ordinary
+      Scroll-grow entrance, the client's brief: the brain starts small on load
+      and grows as you scroll, and the page only proceeds once it is full size.
+      Done as a scroll RUNWAY, not scroll-jacking — the section is 240svh tall
+      and its inner viewport is sticky, so the first 140svh of ordinary
       scrolling plays the growth (a CSS scroll-driven animation on the
       compositor) while the screen stays put. No wheel events are intercepted;
       the scrollbar stays honest; assistive tech sees a normal document.
-
-      The small state needs no special art: the banner's edges ARE its studio
-      ground, and the section behind it is painted the same colour, so a
-      scaled-down image sits on an identical field with no visible boundary.
-      transform-origin is the subject's position, so the brain grows in place
-      rather than sliding in from a corner.
-
       Engines without scroll timelines, and anyone with reduced motion set,
-      get the static full-size hero — height collapses to one viewport and the
-      animation never runs. */}
+      get the static full-size hero. */}
   <section class="hero relative">
-    <div class="hero-viewport relative flex min-h-svh flex-col justify-center overflow-hidden">
-    {/* On a wide screen the picture covers the section and the type is set into
-        its clean left third — `object-position: 30%` shows the LEFT of a canvas
-        three times the subject's width, which pushes the brain to the right.
+    <div class="hero-viewport relative flex min-h-svh flex-col justify-end overflow-hidden">
+      {
+        hero.image && (
+          <div class="absolute inset-0 bg-paper" aria-hidden="true">
+            <Image
+              src={hero.image}
+              alt=""
+              widths={[828, 1440, 2160, Math.min(hero.image.width, 2912)]}
+              sizes="100vw"
+              loading="eager"
+              fetchpriority="high"
+              class="hero-media-img h-full w-full object-contain object-center p-[4svh] pb-[26svh] mix-blend-lighten"
+            />
+          </div>
+        )
+      }
 
-        A phone is portrait and the type takes the full width, so the same crop
-        puts the brain off-frame entirely. There it becomes a band under the
-        type instead: same single <Image>, repositioned by breakpoint, so
-        nothing is downloaded twice.
+      {/* One quiet scrim, bottom only: it seats the type without dulling the
+          sculpture above it. The top needs none — the header floats over the
+          image's own black. */}
+      <div
+        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-paper via-transparent to-transparent"
+        aria-hidden="true"
+      >
+      </div>
 
-        This comment lives outside the `hero.image && (…)` expression — that
-        holds exactly one child, so a comment plus an element is a parse error —
-        and outside the tag, because a block comment between attributes is
-        parsed AS attributes. */}
-    {
-      hero.image && (
-        <div
-          class="order-2 mt-8 h-[34svh] w-full shrink-0 lg:absolute lg:inset-0 lg:order-none lg:mt-0 lg:h-auto"
-          aria-hidden="true"
-        >
-          <Image
-            src={hero.image}
-            alt=""
-            widths={[1440, 2160, 2880, Math.min(hero.image.width, 4320)]}
-            sizes="100vw"
-            loading="eager"
-            fetchpriority="high"
-            class="hero-media-img h-full w-full object-cover"
-          />
-        </div>
-      )
-    }
-
-    <div
-      class="relative order-1 mx-auto w-full max-w-[104rem] px-(--spacing-gutter) pb-[clamp(1rem,3vh,2rem)] pt-[clamp(5.5rem,12vh,8rem)] lg:order-none lg:pb-[clamp(2rem,5vh,3.5rem)]"
-    >
-      <div class="max-w-[34rem] lg:max-w-[38rem]">
+      <div
+        class="relative mx-auto w-full max-w-[104rem] px-(--spacing-gutter) pb-[clamp(1.5rem,4vh,3rem)] pt-28"
+      >
         <p class="reveal text-eyebrow font-medium uppercase text-signal">
           {site.department} · {site.institution}
         </p>
 
         <h1
-          class="reveal-words mt-6 max-w-[15ch] font-display text-hero text-ink"
+          class="reveal-words mt-5 max-w-[24ch] font-display text-hero text-ink"
           data-reveal-delay="90"
           set:html={splitWords('Cognition, Affect, and Neurodevelopment in Youth')}
         />
 
-        <p class="reveal mt-6 max-w-[40ch] text-lede text-ink-dim" data-reveal-delay="380">
-          {site.tagline}
-        </p>
-
-        <p class="reveal mt-7 flex flex-wrap items-baseline gap-x-3" data-reveal-delay="480">
-          <span class="text-eyebrow font-medium uppercase text-ink-muted">Directed by</span>
-          <span class="font-display text-[1.5rem] leading-tight text-ink">{site.director}</span>
-        </p>
+        {/* The rule draws itself in once the name has landed, tying the name
+            to the row of practicalities beneath it. */}
+        <div class="reveal-rule mt-7 h-px w-full bg-ink/15" data-reveal-delay="420" aria-hidden="true">
+        </div>
 
         <div
-          class="reveal mt-7 flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.95rem]"
-          data-reveal-delay="560"
+          class="reveal flex flex-col gap-5 pt-6 md:flex-row md:items-end md:justify-between"
+          data-reveal-delay="500"
         >
-          <a href={`mailto:${site.contact.email}`} class="link-rule">{site.contact.email}</a>
-          <a href="/participate" class="link-rule">Take part in a study</a>
-          <a href="/research" class="link-rule">Our research</a>
+          <p class="text-lede text-ink-dim">
+            Directed by <span class="text-ink">{site.director}</span>
+          </p>
+
+          <div class="flex flex-wrap items-center gap-x-8 gap-y-3 text-[0.95rem]">
+            <a href={`mailto:${site.contact.email}`} class="link-rule">{site.contact.email}</a>
+            <a href="/participate" class="link-rule">Take part in a study</a>
+            <a href="/research" class="link-rule">Our research</a>
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* The photograph carries the meaning, so it is described here rather than
-        left as decoration. Not on the <img>: that is aria-hidden because the
-        picture is the section's background, and a background does not announce
-        itself before the heading. */}
-    <p class="sr-only">{hero.alt}</p>
+      {/* The photograph carries the meaning, so it is described here rather
+          than left as decoration. Not on the <img>: that is aria-hidden because
+          the picture is the section's background, and a background does not
+          announce itself before the heading. */}
+      <p class="sr-only">{hero.alt}</p>
     </div>
   </section>
 
@@ -216,10 +172,10 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       The client asked for "sexy black" and this is where it lives: dark as
       punctuation on a light site, exactly like the Publications plate.
 
-      The band's colour is the photograph's own edge tone, sampled uniform
-      #02131b on all four edges, so image and band are one continuous field —
-      the bounded-plate case of the blending rule. */}
-  <section class="reveal-media" style="background-color: #02131b" data-reveal-delay="120">
+      The photograph's edge tone (#02131b, uniform on all four edges) IS the
+      site's ground colour — --color-paper was adopted from it — so image,
+      band and page are one continuous black with no seam anywhere. */}
+  <section class="reveal-media bg-paper" data-reveal-delay="120">
     <figure class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-10 md:py-14">
       <Image
         src={dividerImage}
@@ -354,39 +310,30 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
 </Base>
 
 <style>
-  /* Matched to the hero photograph's own studio ground, so that on a phone —
-     where the picture is a band rather than the whole field — the join between
-     the two is invisible. See --color-hero-ground in global.css. */
+  /* The hero sits on the page's own black — the blend clamps the photograph's
+     near-black to it, so there is no colour to keep in sync. */
   .hero {
     background-color: var(--color-hero-ground);
   }
 
-  /* Phone: the picture is a band under the type, and the subject should sit in
-     the middle of it.
-
-     `center` does NOT do that. The subject is composited at 60.2% of the canvas
-     (off-centre on purpose, so it clears the type on a wide screen), so showing
-     the canvas's middle puts it noticeably right of centre in the band.
-
-     Same arithmetic as the desktop rule, solved for 50vw instead of 73vw. The
-     band is 34svh tall and the canvas is 2.4:1, so its drawn width is
-     2.4 x 34svh = 81.6svh, and the subject's centre sits at 0.602 of that:
-
-        x = 50vw - 0.602 * 81.6svh = 50vw - 49.1svh
-
-     The min()/max() pair clamps x to the range the image can actually be
-     offset by — never past its own left edge, never so far that a blank strip
-     appears on the right. */
+  /* The growth anchors just above the image's centre, where the sculpture
+     sits inside its bottom-padded frame, so the brain inflates in place. */
   .hero-media-img {
-    object-position: center 42%;
-    object-position: max(calc(100vw - 81.6svh), min(0px, calc(50vw - 49.1svh))) center;
+    transform-origin: 50% 44%;
   }
 
   /* ── Scroll-grow entrance ─────────────────────────────────
      Only where scroll timelines exist AND motion is welcome: the section
-     becomes a 220svh runway whose inner viewport is sticky, and the image
-     scales 0.34 → 1 across the first 120svh of scroll — which is exactly when
+     becomes a 240svh runway whose inner viewport is sticky, and the image
+     scales 0.3 → 1 across the first 140svh of scroll — which is exactly when
      the sticky releases, so full size and "the page moves on" coincide.
+
+     Two things make it feel smooth rather than mechanical. The travel is
+     long — 140svh of scroll for one gesture's worth of growth, so no single
+     wheel tick jumps the scale — and the curve is an ease-in-out, so the
+     growth gathers speed gently and settles gently instead of tracking the
+     scroll linearly. The image is object-contain, so the compositor rescales
+     a viewport-sized bitmap, not an oversized cover crop.
 
      Compositor-only (transform), no JS, no wheel interception. Everyone else
      gets the static hero: the section stays one viewport tall and the image
@@ -394,7 +341,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   @supports (animation-timeline: scroll(root)) {
     @media (prefers-reduced-motion: no-preference) {
       .hero {
-        height: 220svh;
+        height: 240svh;
       }
       .hero-viewport {
         position: sticky;
@@ -403,55 +350,20 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
         min-height: 0;
       }
       .hero-media-img {
-        animation: hero-grow linear both;
+        animation: hero-grow var(--ease-in-out-soft) both;
         animation-timeline: scroll(root);
-        animation-range: 0 120svh;
+        animation-range: 0 140svh;
+        will-change: transform;
       }
     }
   }
 
   @keyframes hero-grow {
     from {
-      transform: scale(0.34);
+      transform: scale(0.3);
     }
     to {
       transform: scale(1);
-    }
-  }
-
-  /* The growth anchors on the subject so the brain inflates in place. Same
-     split as object-position: the subject sits mid-band on a phone, at 73%
-     of the field on a wide screen. */
-  .hero-media-img {
-    transform-origin: 50% 45%;
-  }
-  @media (min-width: 1024px) {
-    .hero-media-img {
-      transform-origin: 73% 46%;
-    }
-  }
-
-  /* Wide: the picture is the whole field, and the subject's centre is pinned
-     to 73% of the viewport width — the position read off the composition the
-     client approved — at EVERY size, not just the one it was tuned on.
-
-     A fixed percentage cannot do that. With object-cover on a 2.4:1 canvas the
-     drawn width is 2.4x the section height, so a constant `28%` lands the
-     subject at 73% on one screen, 78% at MacBook-fullscreen, 64% on a wide
-     monitor: the exact "looks right here, wrong when I fullscreen" complaint.
-
-     So the x-offset is computed instead. Drawn width = 240svh; the subject's
-     centre sits at 60.2% of the canvas (measured); pinning it to 73vw gives
-
-        x = 73vw - 0.602 * 240svh = 73vw - 144.5svh
-
-     min(0px, …) stops the image's left edge pulling inside the viewport on
-     aspect ratios wider than ~2:1, where the formula would otherwise expose a
-     blank strip. The percentage fallback stays for engines without svh. */
-  @media (min-width: 1024px) {
-    .hero-media-img {
-      object-position: 28% center;
-      object-position: min(0px, calc(73vw - 144.5svh)) center;
     }
   }
 </style>

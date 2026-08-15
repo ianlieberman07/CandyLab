@@ -117,16 +117,12 @@ over with that state preserved and are marked as incomplete, so each shows a
 visible notice. Either write them or untick **Show in the menu** — as of now
 they are already out of the top menu and reachable only from the footer.
 
-### 9. The ENIGMA sub-page was not carried over
+### 9. The ENIGMA sub-page — resolved: dropped
 
-`/publications/enigma/` lists roughly 30 further ENIGMA-consortium papers, but
-with **no links of any kind** — just titles and journal names. Rather than
-publish a second, link-free bibliography beside the good one, these have been
-left out for now.
-
-**Decision needed:** fold them into the main Publications list (they can be
-resolved to DOIs the same way the other 92 were), or rebuild the sub-page as
-it was, or drop it.
+It was rebuilt with resolved DOIs (17 entries, 15 verified), then removed at
+the client's direction on 14 Aug 2026. The resolved data survives in git
+history (content/enigma-papers.json before commit removing it) if the decision
+is ever reversed.
 
 ---
 
@@ -225,6 +221,21 @@ return HTML, the FTP `oa_package` tree was deprecated and removed in 2026, and
 the replacement AWS Open Data bucket (`pmc-oa-opendata`) carries text and XML
 only. The figures here came from the publishers' own pages via the DOI. The
 licence audit in `scripts/`-adjacent scratch work is the reusable part.
+
+---
+
+### 15. Seven members have no headshot
+
+Nicolette Recchia, Jessica Simonson, Saché Coury, Jasper Laca, Elizabeth
+McNeilly, Amar Ojha and Haley Wang have no photograph on the current site, and
+Miles Tardif's "photo" there is a stock grey avatar. Their cards show initials,
+by design.
+
+These need to come FROM THE LAB. Photographs of real people must not be pulled
+from a web search: an image found online is someone's copyrighted work and
+someone's likeness, and publishing it on the lab's site without their consent
+is a real harm, not a formality. One email from the lab manager asking each
+person for a headshot solves it in a day.
 
 ---
 

@@ -18,37 +18,42 @@
    be mistakable for one another at a glance.
    ============================================================ */
 @theme {
-  /* — Ground. Pale, faintly blue slate; never pure white, which
-       goes glaring next to the navy at full-page scale. — */
-  --color-paper: #eef1f5;
-  --color-paper-raised: #ffffff;
-  --color-paper-sunk: #e2e7ed;
+  /* — Ground. Near-black, faintly blue — the family of the licensed
+       imagery's own grounds (the divider photograph's edges are #02131b),
+       so full-bleed dark pictures sit on the page without a seam. The
+       client called it: dark simply carries photography better. — */
+  --color-paper: #02131b; /* THE black: sampled from the licensed imagery's
+       own ground (the divider photograph's edges), adopted as the page colour
+       so dark photographs and the page are one black by definition — the
+       client's rule, made structural. Any new dark image gets its ground
+       matched or feathered to THIS value. */
+  --color-paper-raised: #0a1a24;
+  --color-paper-sunk: #010d13;
 
-  /* — Type and structure. Deep navy rather than black: it keeps
-       long passages readable without the hard edge of #000. — */
-  --color-ink: #0e1c2b;
-  --color-ink-dim: #33475c;
-  --color-ink-muted: #61758a;
-  --color-ink-faint: #9aa9b8;
+  /* — Type. Pale on dark; "ink" keeps its name so every component
+       reads unchanged — the semantics flipped, not the markup. — */
+  --color-ink: #e9eef4;
+  --color-ink-dim: #b9c5d1;
+  --color-ink-muted: #8496a3;
+  --color-ink-faint: #5b6b7a;
 
   /* — Signal. One colour, two weights.
        `signal` carries text and passes AA on the pale ground
        (4.7:1); `signal-bright` is graphic only — rules, dots,
        fills — and is never used for type on a light background. — */
-  --color-signal: #00778c;
+  --color-signal: #2fc6dc; /* text links on the dark ground, ~8.5:1 */
   --color-signal-bright: #00c2d9;
-  --color-signal-deep: #004d5c;
+  --color-signal-deep: #8fe0ee; /* hover: lighter, not darker, on dark */
 
   /* — Inverse blocks: full-bleed navy sections and the footer. — */
   --color-navy: #0e1c2b;
   --color-navy-raised: #17293c;
 
-  /* — The first screen's ground. Sampled from the hero photograph's own
-       studio background (#f9fafb across its top and middle), so the picture
-       sits on an exact match rather than an approximation and has no edge to
-       show. If the hero image is ever replaced, re-sample and change this one
-       value — scripts/make-hero-cutout.mjs prints it. — */
-  --color-hero-ground: #f9fafb;
+  /* — The first screen's ground is simply the page's own black: the hero
+       photograph sits on it through mix-blend-lighten, which clamps every
+       pixel darker than the ground to exactly the ground, so any dark-field
+       image blends seamlessly with no sampling or matching step. — */
+  --color-hero-ground: var(--color-paper);
 
   /* — Institutional nod only: never the primary palette.
        Pending UCLA brand review (DOCS/QUESTIONS.md). — */
@@ -121,10 +126,9 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
-    /* Tells the UA this is a light document, so native controls —
-       scrollbars, the search input's clear button, date pickers —
-       render light instead of punching a dark hole in the page. */
-    color-scheme: light;
+    /* Dark document: native controls render dark instead of punching a
+       white hole in the page. */
+    color-scheme: dark;
     /* The header is sticky, so anchored jumps must clear it. */
     scroll-padding-top: calc(var(--spacing-header) + 1.5rem);
   }
@@ -143,7 +147,7 @@
   }
 
   html {
-    scrollbar-color: #b9c4cf var(--color-paper-sunk);
+    scrollbar-color: #2b3948 var(--color-paper-sunk);
     scrollbar-width: thin;
   }
   ::-webkit-scrollbar {
@@ -154,12 +158,12 @@
     background: var(--color-paper-sunk);
   }
   ::-webkit-scrollbar-thumb {
-    background: #b9c4cf;
+    background: #2b3948;
     border: 3px solid var(--color-paper-sunk);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #93a3b2;
+    background: #43556a;
   }
 
   h1,
@@ -408,7 +412,7 @@
     text-decoration: none;
     background-image:
       linear-gradient(var(--color-signal), var(--color-signal)),
-      linear-gradient(rgb(14 28 43 / 0.22), rgb(14 28 43 / 0.22));
+      linear-gradient(rgb(233 238 244 / 0.28), rgb(233 238 244 / 0.28));
     background-repeat: no-repeat;
     background-position:
       0 100%,
@@ -510,9 +514,9 @@
     border-bottom: 1px solid transparent;
   }
   .site-header[data-scrolled] {
-    background-color: rgb(238 241 245 / 0.82);
+    background-color: rgb(7 11 16 / 0.78);
     backdrop-filter: blur(16px) saturate(150%);
-    border-bottom-color: rgb(14 28 43 / 0.1);
+    border-bottom-color: rgb(233 238 244 / 0.1);
   }
 
   /* Where the header floats over a full-bleed image, the navigation has to stay
@@ -533,9 +537,9 @@
     z-index: -1;
     background-image: linear-gradient(
       to bottom,
-      rgb(255 255 255 / 0.95) 0%,
-      rgb(255 255 255 / 0.78) 42%,
-      rgb(255 255 255 / 0.32) 72%,
+      rgb(4 7 11 / 0.92) 0%,
+      rgb(4 7 11 / 0.7) 42%,
+      rgb(4 7 11 / 0.28) 72%,
       transparent 100%
     );
     transition: opacity 0.5s var(--ease-out-soft);

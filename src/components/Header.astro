@@ -54,7 +54,12 @@ const isCurrentSection = (item: (typeof nav)[number]) =>
         {
           nav.map((item) => (
             <li class:list={['nav-item relative', item.children.length > 0 && 'has-children']}>
-              <div class="flex items-center gap-1">
+              {/* Two shapes, per the client's rule: a section with children is
+                  a pure disclosure — the top-level control is a BUTTON that
+                  only opens the menu, and the section's own page moves inside
+                  it as the first option, so every choice is made in one place.
+                  A section without children is an ordinary link. */}
+              {item.children.length === 0 ? (
                 <a
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
@@ -68,34 +73,34 @@ const isCurrentSection = (item: (typeof nav)[number]) =>
                 >
                   {item.label}
                 </a>
-
-                {/* The section is a real link AND a disclosure. The link goes to
-                    the section page; this button opens the list. Two separate
-                    controls because a top-level item that only opens a menu
-                    strands the section's own page, and one that only navigates
-                    hides its children from touch and keyboard entirely. */}
-                {item.children.length > 0 && (
-                  <button
-                    type="button"
-                    class="nav-toggle -mr-1 flex h-7 w-6 items-center justify-center text-ink-muted transition-colors hover:text-ink"
-                    aria-expanded="false"
-                    aria-label={`Show ${item.label} pages`}
-                  >
-                    <svg width="9" height="6" viewBox="0 0 9 6" fill="none" aria-hidden="true">
-                      <path
-                        d="M1 1l3.5 3.5L8 1"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  </button>
-                )}
-              </div>
+              ) : (
+                <button
+                  type="button"
+                  class:list={[
+                    'nav-toggle relative flex items-center gap-1.5 py-2 text-[0.94rem] tracking-wide transition-colors duration-300 hover:text-ink',
+                    'after:absolute after:bottom-0 after:left-0 after:h-px after:bg-signal after:transition-all after:duration-500',
+                    isCurrentSection(item)
+                      ? 'text-ink after:w-full'
+                      : 'text-ink-dim after:w-0 hover:after:w-full',
+                  ]}
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                >
+                  {item.label}
+                  <svg width="9" height="6" viewBox="0 0 9 6" fill="none" aria-hidden="true">
+                    <path
+                      d="M1 1l3.5 3.5L8 1"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+              )}
 
               {item.children.length > 0 && (
                 <ul class="nav-submenu absolute left-0 top-full z-50 w-60 border border-ink/10 bg-paper-raised py-1.5 shadow-lg">
-                  {item.children.map((child) => (
+                  {[{ label: item.label, href: item.href }, ...item.children].map((child) => (
                     <li>
                       <a
                         href={child.href}

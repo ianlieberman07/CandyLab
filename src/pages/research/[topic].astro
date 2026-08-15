@@ -31,7 +31,7 @@ const next = all[(index + 1) % all.length];
   <article class="mx-auto max-w-[104rem] px-(--spacing-gutter) py-(--spacing-section)">
     {
       study.data.needsReview && (
-        <div class="mb-12">
+        <div class="mb-12 flex justify-center">
           <Notice title="Marked as incomplete">
             <p>
               This page is flagged for review in the admin. Untick “Mark as incomplete” once the
@@ -42,7 +42,7 @@ const next = all[(index + 1) % all.length];
       )
     }
 
-    <div class="reveal prose-lab max-w-(--container-prose)">
+    <div class="reveal prose-lab mx-auto max-w-(--container-prose)">
       <Content />
     </div>
   </article>

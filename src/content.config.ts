@@ -161,22 +161,4 @@ const pages = defineCollection({
     }),
 });
 
-// ENIGMA-consortium papers, from the original site's Publications > ENIGMA
-// sub-page. That page carried NO links at all; every DOI here was resolved
-// against OpenAlex/Crossref, and unresolved titles keep an empty doi rather
-// than a guessed one.
-const enigmaPapers = defineCollection({
-  loader: file('./content/enigma-papers.json', { parser: (text) => JSON.parse(text).papers }),
-  schema: z.object({
-    id: z.number(),
-    title: z.string(),
-    journal: z.string().default(''),
-    year: z.number(),
-    doi: z.string().default(''),
-    free: z.string().default(''),
-    openAccess: z.boolean().default(false),
-    match: z.number().optional(),
-  }),
-});
-
-export const collections = { people, research, papers, news, pages, enigmaPapers };
+export const collections = { people, research, papers, news, pages };
