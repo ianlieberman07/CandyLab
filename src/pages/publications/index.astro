@@ -1,11 +1,9 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { getHeader } from '../../utils/headers';
 import PageHeader from '../../components/PageHeader.astro';
 import { emphasize } from '../../utils/emphasis';
-import brainNetworks from '../../../content/pages/images/brain-networks.jpg';
 
 // Transcribed from the lab's own Publications page, then resolved: every entry
 // was matched against OpenAlex and Crossref for its registered DOI and its true
@@ -41,42 +39,24 @@ const header = getHeader('publications');
     lede={`${total} papers. ${freeCount} of them can be read in full without a subscription — use the “Free to read” filter to see only those.`}
   />
 
-  {/* A band from the lab's own imaging, not stock. Taken from Ho et al. 2021 in
-      Translational Psychiatry, which is CC BY — so it can be cropped and
-      reproduced provided it is credited, which is what the caption below does.
-      The crop removes the panel titles and slice coordinates and keeps the
-      imaging itself.
-
-      Nothing else on this site is licensed this way; see DOCS/QUESTIONS.md for
-      which of the 92 papers can and cannot be reused. */}
-  {/* The band is the figure's own black, not the site navy. The imaging was
-      published on black, and any other ground puts a visible rectangle inside a
-      rectangle — the same pasted-on look the page headers just lost. Matching
-      it makes the plate read as one continuous dark field. */}
-  <figure class="bg-black py-12 md:py-16">
-    <div class="mx-auto max-w-[74rem] px-(--spacing-gutter)">
-      <Image
-        src={brainNetworks}
-        alt="Brain slices showing default mode and salience network activation in orange, yellow and green on black, labelled by network."
-        widths={[720, 1100, 1600]}
-        sizes="(min-width: 1200px) 70rem, 92vw"
-        loading="lazy"
-        class="h-auto w-full"
-      />
-    </div>
-    <figcaption class="mx-auto mt-8 max-w-[74rem] px-(--spacing-gutter) text-[0.78rem] leading-relaxed text-paper/55">
-      Default mode and salience network alterations in adolescents with depression. Ho TC, Walker
-      JC, Teresi GI, Kulla A, Kirshenbaum JS, Gifuni AJ, Singh MK, Gotlib IH.{' '}
-      <em>Translational Psychiatry</em> (2021).{' '}
-      <a
-        href="https://doi.org/10.1038/s41398-020-01103-x"
-        rel="noopener"
-        class="underline underline-offset-2 hover:text-signal-bright"
-      >
-        CC BY 4.0
-      </a>
-    </figcaption>
-  </figure>
+  {/* The header photograph is the lab's own imaging, not stock — Ho et al.
+      2021 in Translational Psychiatry, which is CC BY, so it can be cropped
+      and reproduced provided it is credited. This line IS that credit; do not
+      remove it while the image is in the header. Nothing else on this site is
+      licensed this way; see DOCS/QUESTIONS.md for which of the 92 papers can
+      and cannot be reused. */}
+  <p
+    class="mx-auto max-w-[104rem] px-(--spacing-gutter) pt-4 text-right text-[0.75rem] leading-relaxed text-ink-faint"
+  >
+    Header imaging: Ho TC et al., <em>Translational Psychiatry</em> (2021),{' '}
+    <a
+      href="https://doi.org/10.1038/s41398-020-01103-x"
+      rel="noopener"
+      class="underline underline-offset-2 hover:text-signal"
+    >
+      CC BY 4.0
+    </a>
+  </p>
 
   <section class="mx-auto max-w-[104rem] px-(--spacing-gutter) pb-(--spacing-section) pt-10">
     <!-- Controls. Without JS the search and filters are hidden (they would do
