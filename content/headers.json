@@ -9,8 +9,8 @@
   {
    "key": "research",
    "label": "Research",
-   "image": "",
-   "alt": ""
+   "image": "./pages/images/covers/research-gears.jpg",
+   "alt": "Two facing head profiles built from interlocking gears — one blue and orange, one blue and red — with gears streaming through the air between them."
   },
   {
    "key": "publications",
