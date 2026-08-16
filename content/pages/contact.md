@@ -2,6 +2,8 @@
 title: 'Contact Us'
 eyebrow: 'Get in touch'
 lede: 'The fastest way to reach the lab is email — we read it every day.'
+hero: ./images/covers/contact-synapse.jpg
+heroAlt: 'A synapse in blue — the terminal of one neuron meeting the surface of another.'
 showInNav: true
 navOrder: 60
 draft: false

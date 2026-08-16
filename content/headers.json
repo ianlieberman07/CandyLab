@@ -33,8 +33,8 @@
   {
    "key": "news",
    "label": "News",
-   "image": "",
-   "alt": ""
+   "image": "./pages/images/covers/news-neuron.jpg",
+   "alt": "A blue neuron with a glowing orange cell body, its dendrites reaching across a black field."
   }
  ]
 }
